@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" width="480" height="220">
+  <!-- Background -->
+  <rect width="480" height="220" fill="#cfe2f3"/>
+
+  <!-- Chessboard — 6×5 visible squares, centred -->
+  <g>
+    <!-- Row 1 (top) -->
+    <rect x="60" y="28"  width="36" height="36" fill="#f0d9b5"/>
+    <rect x="96" y="28"  width="36" height="36" fill="#b58863"/>
+    <rect x="132" y="28" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="168" y="28" width="36" height="36" fill="#b58863"/>
+    <rect x="204" y="28" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="240" y="28" width="36" height="36" fill="#b58863"/>
+    <!-- Row 2 -->
+    <rect x="60" y="64"  width="36" height="36" fill="#b58863"/>
+    <rect x="96" y="64"  width="36" height="36" fill="#f0d9b5"/>
+    <rect x="132" y="64" width="36" height="36" fill="#b58863"/>
+    <rect x="168" y="64" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="204" y="64" width="36" height="36" fill="#b58863"/>
+    <rect x="240" y="64" width="36" height="36" fill="#f0d9b5"/>
+    <!-- Row 3 -->
+    <rect x="60" y="100" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="96" y="100" width="36" height="36" fill="#b58863"/>
+    <rect x="132" y="100" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="168" y="100" width="36" height="36" fill="#b58863"/>
+    <rect x="204" y="100" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="240" y="100" width="36" height="36" fill="#b58863"/>
+    <!-- Row 4 -->
+    <rect x="60" y="136" width="36" height="36" fill="#b58863"/>
+    <rect x="96" y="136" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="132" y="136" width="36" height="36" fill="#b58863"/>
+    <rect x="168" y="136" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="204" y="136" width="36" height="36" fill="#b58863"/>
+    <rect x="240" y="136" width="36" height="36" fill="#f0d9b5"/>
+    <!-- Row 5 -->
+    <rect x="60" y="172" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="96" y="172" width="36" height="36" fill="#b58863"/>
+    <rect x="132" y="172" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="168" y="172" width="36" height="36" fill="#b58863"/>
+    <rect x="204" y="172" width="36" height="36" fill="#f0d9b5"/>
+    <rect x="240" y="172" width="36" height="36" fill="#b58863"/>
+  </g>
+
+  <!-- Board border -->
+  <rect x="60" y="28" width="216" height="180" fill="none" stroke="#8b6914" stroke-width="3"/>
+
+  <!-- White King on e4 square (col 4, row 3 = 204,100) -->
+  <rect x="209" y="105" width="26" height="26" rx="3" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="222" y="124" text-anchor="middle" font-family="serif" font-size="22" fill="#111">♔</text>
+
+  <!-- Black Queen on d5 (col 3, row 2 = 168,64) -->
+  <rect x="173" y="69" width="26" height="26" rx="3" fill="#222" stroke="#444" stroke-width="1"/>
+  <text x="186" y="88" text-anchor="middle" font-family="serif" font-size="22" fill="white">♛</text>
+
+  <!-- White Rook on h1 -->
+  <rect x="245" y="177" width="26" height="26" rx="3" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="258" y="196" text-anchor="middle" font-family="serif" font-size="22" fill="#111">♖</text>
+
+  <!-- Black Bishop on b6 (96, 28) -->
+  <rect x="101" y="33" width="26" height="26" rx="3" fill="#222" stroke="#444" stroke-width="1"/>
+  <text x="114" y="52" text-anchor="middle" font-family="serif" font-size="22" fill="white">♝</text>
+
+  <!-- Highlight dot (legal move indicator) -->
+  <circle cx="204" cy="154" r="8" fill="#1155cc" opacity="0.55"/>
+  <circle cx="168" cy="118" r="8" fill="#1155cc" opacity="0.55"/>
+
+  <!-- Right decorative panel -->
+  <rect x="296" y="28" width="154" height="180" rx="6" fill="#1155cc" opacity="0.10"/>
+
+  <!-- Big chess piece silhouette -->
+  <text x="373" y="156" text-anchor="middle" font-family="serif" font-size="110" fill="#1155cc" opacity="0.25">♔</text>
+
+  <!-- Check badge -->
+  <rect x="310" y="60" width="72" height="28" rx="14" fill="#1155cc"/>
+  <text x="346" y="79" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="white">CHECK</text>
+</svg>

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" width="480" height="220">
+  <!-- Background -->
+  <rect width="480" height="220" fill="#cfe2f3"/>
+
+  <!-- Fan of cards — 7 cards, rotated around a pivot -->
+
+  <!-- Card 1 (leftmost, most rotated) -->
+  <g transform="rotate(-30 240 260)">
+    <rect x="165" y="60" width="62" height="90" rx="7" fill="white" stroke="#ddd" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="172" y="80" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#c0392b">3</text>
+    <text x="172" y="94" font-family="serif" font-size="14" fill="#c0392b">♦</text>
+    <text x="196" y="142" text-anchor="middle" font-family="serif" font-size="28" fill="#c0392b">♦</text>
+  </g>
+
+  <!-- Card 2 -->
+  <g transform="rotate(-20 240 260)">
+    <rect x="165" y="60" width="62" height="90" rx="7" fill="white" stroke="#ddd" stroke-width="1.5"/>
+    <text x="172" y="80" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1a1a1a">7</text>
+    <text x="172" y="94" font-family="serif" font-size="14" fill="#1a1a1a">♠</text>
+    <text x="196" y="142" text-anchor="middle" font-family="serif" font-size="28" fill="#1a1a1a">♠</text>
+  </g>
+
+  <!-- Card 3 -->
+  <g transform="rotate(-10 240 260)">
+    <rect x="165" y="60" width="62" height="90" rx="7" fill="white" stroke="#ddd" stroke-width="1.5"/>
+    <text x="172" y="80" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#c0392b">J</text>
+    <text x="172" y="94" font-family="serif" font-size="14" fill="#c0392b">♥</text>
+    <text x="196" y="142" text-anchor="middle" font-family="serif" font-size="28" fill="#c0392b">♥</text>
+  </g>
+
+  <!-- Card 4 (centre, upright) — featured card: 2 of Spades -->
+  <g transform="rotate(0 240 260)">
+    <rect x="165" y="52" width="66" height="96" rx="7" fill="white" stroke="#1155cc" stroke-width="2.5" filter="url(#shadow)"/>
+    <text x="173" y="74" font-family="Helvetica, Arial, sans-serif" font-size="16" font-weight="bold" fill="#1a1a1a">2</text>
+    <text x="173" y="90" font-family="serif" font-size="16" fill="#1a1a1a">♠</text>
+    <text x="198" y="140" text-anchor="middle" font-family="serif" font-size="34" fill="#1a1a1a">♠</text>
+    <!-- "HIGHEST" ribbon -->
+    <rect x="165" y="52" width="66" height="20" rx="7" fill="#1155cc"/>
+    <rect x="165" y="62" width="66" height="10" fill="#1155cc"/>
+    <text x="198" y="66" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="9" font-weight="bold" fill="white">HIGHEST</text>
+  </g>
+
+  <!-- Card 5 -->
+  <g transform="rotate(10 240 260)">
+    <rect x="165" y="60" width="62" height="90" rx="7" fill="white" stroke="#ddd" stroke-width="1.5"/>
+    <text x="172" y="80" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#1a1a1a">K</text>
+    <text x="172" y="94" font-family="serif" font-size="14" fill="#1a1a1a">♣</text>
+    <text x="196" y="142" text-anchor="middle" font-family="serif" font-size="28" fill="#1a1a1a">♣</text>
+  </g>
+
+  <!-- Card 6 -->
+  <g transform="rotate(20 240 260)">
+    <rect x="165" y="60" width="62" height="90" rx="7" fill="white" stroke="#ddd" stroke-width="1.5"/>
+    <text x="172" y="80" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#c0392b">A</text>
+    <text x="172" y="94" font-family="serif" font-size="14" fill="#c0392b">♥</text>
+    <text x="196" y="142" text-anchor="middle" font-family="serif" font-size="28" fill="#c0392b">♥</text>
+  </g>
+
+  <!-- Card 7 -->
+  <g transform="rotate(30 240 260)">
+    <rect x="165" y="60" width="62" height="90" rx="7" fill="white" stroke="#ddd" stroke-width="1.5"/>
+    <text x="172" y="80" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="bold" fill="#c0392b">Q</text>
+    <text x="172" y="94" font-family="serif" font-size="14" fill="#c0392b">♦</text>
+    <text x="196" y="142" text-anchor="middle" font-family="serif" font-size="28" fill="#c0392b">♦</text>
+  </g>
+
+  <!-- Right decorative panel -->
+  <rect x="350" y="28" width="110" height="164" rx="6" fill="#1155cc" opacity="0.10"/>
+  <text x="405" y="108" text-anchor="middle" font-family="serif" font-size="44" fill="#1a1a1a" opacity="0.18">♠</text>
+  <text x="405" y="158" text-anchor="middle" font-family="serif" font-size="44" fill="#c0392b" opacity="0.22">♥</text>
+
+  <!-- 大老二 label -->
+  <rect x="358" y="42" width="88" height="32" rx="16" fill="#1155cc"/>
+  <text x="402" y="63" text-anchor="middle" font-family="serif" font-size="16" font-weight="bold" fill="white">大老二</text>
+
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="3" stdDeviation="3" flood-color="#00000022"/>
+    </filter>
+  </defs>
+</svg>

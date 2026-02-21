@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" width="480" height="220">
+  <!-- Background -->
+  <rect width="480" height="220" fill="#cfe2f3"/>
+
+  <!-- Board surface -->
+  <rect x="60" y="28" width="260" height="164" rx="6" fill="#f5e6c8" stroke="#c8a96e" stroke-width="2"/>
+
+  <!-- Grid lines horizontal -->
+  <g stroke="#c8a96e" stroke-width="1" opacity="0.7">
+    <line x1="80" y1="48"  x2="300" y2="48"/>
+    <line x1="80" y1="68"  x2="300" y2="68"/>
+    <line x1="80" y1="88"  x2="300" y2="88"/>
+    <line x1="80" y1="108" x2="300" y2="108"/>
+    <line x1="80" y1="128" x2="300" y2="128"/>
+    <line x1="80" y1="148" x2="300" y2="148"/>
+    <line x1="80" y1="168" x2="300" y2="168"/>
+    <line x1="80" y1="188" x2="300" y2="188"/>
+  </g>
+  <!-- Grid lines vertical -->
+  <g stroke="#c8a96e" stroke-width="1" opacity="0.7">
+    <line x1="80"  y1="48" x2="80"  y2="188"/>
+    <line x1="107" y1="48" x2="107" y2="188"/>
+    <line x1="134" y1="48" x2="134" y2="188"/>
+    <line x1="161" y1="48" x2="161" y2="188"/>
+    <line x1="188" y1="48" x2="188" y2="188"/>
+    <line x1="215" y1="48" x2="215" y2="188"/>
+    <line x1="242" y1="48" x2="242" y2="188"/>
+    <line x1="269" y1="48" x2="269" y2="188"/>
+    <line x1="300" y1="48" x2="300" y2="188"/>
+  </g>
+
+  <!-- River label -->
+  <text x="190" y="122" text-anchor="middle" font-family="serif" font-size="13" fill="#b8860b" opacity="0.8" letter-spacing="8">楚河  漢界</text>
+
+  <!-- Palace diagonals red side -->
+  <g stroke="#c8a96e" stroke-width="1" opacity="0.6">
+    <line x1="161" y1="48"  x2="215" y2="88"/>
+    <line x1="215" y1="48"  x2="161" y2="88"/>
+    <line x1="161" y1="148" x2="215" y2="188"/>
+    <line x1="215" y1="148" x2="161" y2="188"/>
+  </g>
+
+  <!-- Red pieces -->
+  <!-- General (將) -->
+  <circle cx="188" cy="168" r="16" fill="#c0392b" stroke="#8b0000" stroke-width="2"/>
+  <text x="188" y="173" text-anchor="middle" font-family="serif" font-size="14" fill="white" font-weight="bold">將</text>
+
+  <!-- Chariot -->
+  <circle cx="80" cy="188" r="13" fill="#c0392b" stroke="#8b0000" stroke-width="1.5"/>
+  <text x="80" y="192" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">車</text>
+  <circle cx="300" cy="188" r="13" fill="#c0392b" stroke="#8b0000" stroke-width="1.5"/>
+  <text x="300" y="192" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">車</text>
+
+  <!-- Horse -->
+  <circle cx="107" cy="188" r="13" fill="#c0392b" stroke="#8b0000" stroke-width="1.5"/>
+  <text x="107" y="192" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">馬</text>
+  <circle cx="269" cy="188" r="13" fill="#c0392b" stroke="#8b0000" stroke-width="1.5"/>
+  <text x="269" y="192" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">馬</text>
+
+  <!-- Cannon -->
+  <circle cx="107" cy="148" r="13" fill="#c0392b" stroke="#8b0000" stroke-width="1.5"/>
+  <text x="107" y="152" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">炮</text>
+  <circle cx="269" cy="148" r="13" fill="#c0392b" stroke="#8b0000" stroke-width="1.5"/>
+  <text x="269" y="152" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">炮</text>
+
+  <!-- Black pieces -->
+  <!-- General (帥) -->
+  <circle cx="188" cy="68" r="16" fill="#1a1a1a" stroke="#444" stroke-width="2"/>
+  <text x="188" y="73" text-anchor="middle" font-family="serif" font-size="14" fill="white" font-weight="bold">帥</text>
+
+  <!-- Chariot -->
+  <circle cx="80" cy="48" r="13" fill="#1a1a1a" stroke="#444" stroke-width="1.5"/>
+  <text x="80" y="52" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">車</text>
+  <circle cx="300" cy="48" r="13" fill="#1a1a1a" stroke="#444" stroke-width="1.5"/>
+  <text x="300" y="52" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">車</text>
+
+  <!-- Horse -->
+  <circle cx="107" cy="48" r="13" fill="#1a1a1a" stroke="#444" stroke-width="1.5"/>
+  <text x="107" y="52" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">馬</text>
+  <circle cx="269" cy="48" r="13" fill="#1a1a1a" stroke="#444" stroke-width="1.5"/>
+  <text x="269" y="52" text-anchor="middle" font-family="serif" font-size="11" fill="white" font-weight="bold">馬</text>
+
+  <!-- Decorative right panel -->
+  <rect x="340" y="28" width="110" height="164" rx="6" fill="#1155cc" opacity="0.12"/>
+  <text x="395" y="90" text-anchor="middle" font-family="serif" font-size="52" fill="#1155cc" opacity="0.6">象</text>
+  <text x="395" y="145" text-anchor="middle" font-family="serif" font-size="52" fill="#c0392b" opacity="0.6">棋</text>
+</svg>
