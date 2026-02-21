@@ -431,7 +431,7 @@ function tickTimer() {
   const m = Math.floor(remaining / 60);
   const s = remaining % 60;
   boggleTimer.textContent = `${m}:${s.toString().padStart(2, '0')}`;
-  boggleTimer.classList.toggle('boggle-timer-urgent', remaining <= 30);
+  boggleTimer.classList.toggle('boggle-timer-urgent', remaining <= 15);
   if (remaining === 0) stopTimer();
 }
 

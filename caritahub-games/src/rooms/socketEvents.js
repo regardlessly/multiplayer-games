@@ -253,7 +253,7 @@ module.exports = function wireEvents(io) {
         io.to(roomId).emit('game_started', bingoPayload(roomId, room, engine));
       } else if (gameType === 'boggle') {
         io.to(roomId).emit('game_started', bogglePayload(roomId, room, engine));
-        // Auto-end round after 180 seconds
+        // Auto-end round after 60 seconds
         const timer = setTimeout(() => {
           const eng = engines.get(roomId);
           const rm  = roomManager.getRoom(roomId);
@@ -274,7 +274,7 @@ module.exports = function wireEvents(io) {
           roomGameTypes.delete(roomId);
           boggleTimers.delete(roomId);
           analytics.logEvent('game_ended', roomId, 'timer', 'timer', { winner: winnerColor, gameType: 'boggle' });
-        }, 180_000);
+        }, 60_000);
         boggleTimers.set(roomId, timer);
       } else {
         const payload = gameStatePayload(roomId, room, engine);

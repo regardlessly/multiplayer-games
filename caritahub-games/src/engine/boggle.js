@@ -1,5 +1,8 @@
 'use strict';
 
+const fs   = require('fs');
+const path = require('path');
+
 /**
  * Boggle engine — server-authoritative.
  *
@@ -30,10 +33,15 @@ const DICE = [
   'EEGHNW', 'AFFKPS', 'HLNNRZ', 'DEILRX'
 ];
 
-// ── Embedded word list (common English words 3-8 letters) ────────────────────
-// We ship a curated ~3000-word set. "QU" is treated as a single face.
-// The list is generated from common Boggle-valid words.
-const WORD_SET = new Set([
+// ── Word list — ENABLE (~168 k words), loaded from boggle-words.txt ──────────
+// "QU" is treated as a single face (Q on the board = QU in words).
+const _wordsFile = path.join(__dirname, 'boggle-words.txt');
+const WORD_SET = new Set(
+  fs.readFileSync(_wordsFile, 'utf8').trim().split('\n').map(w => w.trim().toUpperCase()).filter(Boolean)
+);
+
+// ── (legacy inline list removed — see boggle-words.txt) ──────────────────────
+const _LEGACY_PLACEHOLDER = new Set([
   // 3-letter
   'THE','AND','FOR','ARE','BUT','NOT','YOU','ALL','CAN','HER','WAS','ONE','OUR',
   'OUT','DAY','GET','HAS','HIM','HIS','HOW','ITS','LET','MAN','NEW','NOW','OLD',
@@ -278,7 +286,7 @@ const WORD_SET = new Set([
   'SAMPLE','SAYING','SCHEME','SECOND','SECRET','SIMPLE','SINGLE','SISTER','SKILLS',
   'SMOOTH','SOURCE','SPRING','STRONG','SUPPLY','SYSTEM','USEFUL','VALLEY','VICTIM',
   'VISION','WINTER','WISDOM','WONDER','WITHIN','WORTHY',
-]);
+]); // _LEGACY_PLACEHOLDER — not used
 
 // ── Scoring table ─────────────────────────────────────────────────────────────
 function scoreWord(word) {
@@ -342,8 +350,8 @@ function canFormWord(board, word) {
   return false;
 }
 
-// ── Round timer (180 seconds) ─────────────────────────────────────────────────
-const ROUND_SECONDS = 180;
+// ── Round timer (60 seconds) ──────────────────────────────────────────────────
+const ROUND_SECONDS = 60;
 
 function createGame(playerCount = 2) {
   if (playerCount < 2 || playerCount > 4) throw new Error('Boggle requires 2–4 players');
