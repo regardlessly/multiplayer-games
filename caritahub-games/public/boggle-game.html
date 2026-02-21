@@ -43,18 +43,11 @@
         <!-- ── Below-board panel ── -->
         <div class="boggle-panel">
 
-          <!-- Current word display -->
-          <div class="boggle-word-display-wrap">
-            <div id="boggleWordDisplay" class="boggle-word-display" aria-live="polite">
-              <span class="boggle-word-display-placeholder">Type or drag tiles…</span>
-            </div>
-          </div>
-
-          <!-- Hidden input (captures keyboard on mobile too) -->
-          <input id="wordInput" class="boggle-word-input-hidden" type="text"
-            maxlength="16" autocomplete="off" autocorrect="off"
-            autocapitalize="characters" spellcheck="false"
-            inputmode="text" aria-label="Word input" />
+          <!-- Word input -->
+          <input id="wordInput" class="boggle-word-input" type="text"
+            placeholder="Type or drag tiles…" maxlength="16"
+            autocomplete="off" autocorrect="off" autocapitalize="characters"
+            spellcheck="false" inputmode="text" aria-label="Word input" />
 
           <!-- Action buttons -->
           <div class="boggle-actions">

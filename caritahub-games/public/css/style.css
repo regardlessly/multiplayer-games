@@ -1004,44 +1004,29 @@ input[type="text"]:focus { border-color: var(--blue); }
   gap: 14px;
 }
 
-/* ── Word display ── */
-.boggle-word-display-wrap {
-  display: flex;
-  justify-content: center;
-}
-.boggle-word-display {
-  min-height: 60px;
+/* ── Word input ── */
+.boggle-word-input {
   width: 100%;
-  max-width: 320px;
-  background: var(--gray-bg);
+  padding: 14px 18px;
   border-radius: 14px;
-  border: 2.5px solid transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.8rem;
+  border: 2.5px solid #ddd;
+  background: var(--gray-bg);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 1.6rem;
   font-weight: 900;
-  letter-spacing: 0.12em;
-  color: var(--text);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  cursor: text;
-  transition: border-color 0.15s, background 0.15s;
-  padding: 0 16px;
   text-align: center;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  box-sizing: border-box;
 }
-.boggle-word-display:focus-within,
-.boggle-word-display.active { border-color: var(--blue); background: #f4f8ff; }
-.boggle-word-display.boggle-input-invalid {
-  border-color: #c0392b; background: #fff5f5; color: #c0392b;
+.boggle-word-input::placeholder {
+  font-size: 0.95rem; font-weight: 500; letter-spacing: 0; color: #bbb; text-transform: none;
 }
-.boggle-word-display-placeholder {
-  font-size: 0.95rem; font-weight: 500; color: #aaa; letter-spacing: 0; text-transform: none;
-}
-
-/* Hidden text input (drives the display) */
-.boggle-word-input-hidden {
-  position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px;
-}
+.boggle-word-input:focus { border-color: var(--blue); background: #f4f8ff; }
+.boggle-input-invalid { border-color: #c0392b !important; background: #fff5f5 !important; color: #c0392b !important; }
 
 /* ── Action buttons ── */
 .boggle-actions {
@@ -1204,9 +1189,20 @@ input[type="text"]:focus { border-color: var(--blue); }
 @media (max-width: 340px) {
   .boggle-board { grid-template-columns: repeat(4, 48px); gap: 5px; padding: 8px; }
   .boggle-tile  { width: 48px; height: 48px; font-size: 1.05rem; }
-  .boggle-word-display { font-size: 1.25rem; min-height: 46px; }
+  .boggle-word-input   { font-size: 1.3rem; padding: 12px 12px; }
   .boggle-btn-submit   { padding: 11px 16px; font-size: 0.88rem; }
   .boggle-actions      { gap: 7px; }
+}
+
+/* On touch/mobile: input is readonly (drag only), so style it as a display */
+@media (hover: none) and (pointer: coarse) {
+  .boggle-word-input {
+    cursor: default;
+    /* Slightly dimmer border to hint it's display-only */
+    border-color: #e0e0e0;
+    font-size: 1.5rem;
+  }
+  .boggle-word-input:focus { border-color: #e0e0e0; background: var(--gray-bg); }
 }
 
 /* dot colors for boggle seats */

@@ -17,13 +17,13 @@ const isHost = myColor === 'red';
 
 // ── State ────────────────────────────────────────────────────────────────────
 let gameState     = null;
-let board         = [];   // flat 16-element letter array
+let board         = [];
 let gameActive    = false;
 let timerInterval = null;
 let localDeadline = 0;
-const foundWords  = []; // { word, score } confirmed by server
+const foundWords  = [];
 
-// ── Tile selection state (drag mode) ─────────────────────────────────────────
+// ── Tile selection (drag) ─────────────────────────────────────────────────────
 let selecting    = false;
 let selectedPath = [];
 const tileEls    = [];
@@ -36,7 +36,6 @@ const gameUI           = document.getElementById('gameUI');
 const boggleBoardEl    = document.getElementById('boggleBoard');
 const bogglePlayers    = document.getElementById('bogglePlayers');
 const boggleTimer      = document.getElementById('boggleTimer');
-const wordDisplay      = document.getElementById('boggleWordDisplay');
 const wordInput        = document.getElementById('wordInput');
 const submitWordBtn    = document.getElementById('submitWordBtn');
 const clearWordBtn     = document.getElementById('clearWordBtn');
@@ -84,7 +83,7 @@ socket.on('boggle_accept', ({ word }) => {
   flashFeedback(`✓ ${word}  +${pts} pt${pts !== 1 ? 's' : ''}`, 'success');
   clearSelection();
   wordInput.value = '';
-  syncDisplay();
+  wordInput.classList.remove('boggle-input-invalid');
 });
 
 socket.on('boggle_reject', ({ word, reason }) => {
@@ -102,64 +101,48 @@ socket.on('game_over', ({ winner, reason }) => {
 
 socket.on('connect_error', () => reconnectOverlay.classList.remove('hidden'));
 
-// ── Word display helpers ──────────────────────────────────────────────────────
-function syncDisplay() {
-  const word = currentWord();
-  wordDisplay.innerHTML = '';
-  if (!word) {
-    const ph = document.createElement('span');
-    ph.className = 'boggle-word-display-placeholder';
-    ph.textContent = 'Type or drag tiles…';
-    wordDisplay.appendChild(ph);
-    wordDisplay.classList.remove('active', 'boggle-input-invalid');
-  } else {
-    wordDisplay.textContent = word;
-    wordDisplay.classList.add('active');
-    wordDisplay.classList.remove('boggle-input-invalid');
-  }
-}
-
-function markDisplayInvalid(invalid) {
-  if (invalid) {
-    wordDisplay.classList.add('boggle-input-invalid');
-    wordDisplay.classList.remove('active');
-  } else {
-    wordDisplay.classList.remove('boggle-input-invalid');
-    if (currentWord()) wordDisplay.classList.add('active');
-  }
+// ── Mobile: disable keyboard so drag-only on touch devices ───────────────────
+// We detect touch capability and set readonly so tapping the input on mobile
+// doesn't pop up the software keyboard (drag is the primary input method).
+const isTouchDevice = () => window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+if (isTouchDevice()) {
+  wordInput.setAttribute('readonly', '');
+  wordInput.style.caretColor = 'transparent';
 }
 
 // ── Submit ───────────────────────────────────────────────────────────────────
+function currentWord() {
+  if (selectedPath.length > 0) return pathToWord(selectedPath);
+  return wordInput.value.trim().toUpperCase();
+}
+
 function submitWord() {
   const w = currentWord();
   if (w.length < 3) { flashFeedback('Word must be at least 3 letters', 'error'); return; }
   socket.emit('boggle_submit', { word: w });
 }
 
-function currentWord() {
-  if (selectedPath.length > 0) return pathToWord(selectedPath);
-  return wordInput.value.trim().toUpperCase();
-}
-
 submitWordBtn.addEventListener('click', submitWord);
 
-// Tap on the word display to focus the hidden input
-wordDisplay.addEventListener('click', () => wordInput.focus());
-
-// Keyboard on hidden input
 wordInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); submitWord(); }
 });
+
+// Typing clears drag selection and validates path
 wordInput.addEventListener('input', () => {
   if (selectedPath.length > 0) clearSelection();
-  syncDisplay();
+  // Force uppercase display
+  const pos = wordInput.selectionStart;
+  wordInput.value = wordInput.value.toUpperCase();
+  wordInput.setSelectionRange(pos, pos);
   validateInputPath();
 });
 
 clearWordBtn.addEventListener('click', () => {
   clearSelection();
   wordInput.value = '';
-  syncDisplay();
+  wordInput.classList.remove('boggle-input-invalid');
+  tileEls.forEach(t => t.classList.remove('boggle-tile-typed', 'boggle-tile-last', 'boggle-tile-invalid'));
   wordInput.focus();
 });
 
@@ -193,7 +176,7 @@ function applyState(state) {
   renderPlayers(state.players, state.submissionCounts, state.scores);
 
   submitWordBtn.disabled = false;
-  syncDisplay();
+  wordInput.disabled = false;
   wordInput.focus();
 
   if (isHost) endRoundWrap.classList.remove('hidden');
@@ -210,21 +193,16 @@ function renderBoard(b) {
     tile.dataset.idx = i;
     tile.textContent = letter === 'Q' ? 'Qu' : letter;
 
-    // Mouse events
     tile.addEventListener('mousedown', e => { e.preventDefault(); startSelect(i); });
     tile.addEventListener('mouseenter', () => { if (selecting) extendSelect(i); });
-
-    // Touch events (mobile)
     tile.addEventListener('touchstart', e => { e.preventDefault(); startSelect(i); }, { passive: false });
 
     boggleBoardEl.appendChild(tile);
     tileEls.push(tile);
   });
 
-  // End selection on mouseup anywhere
   document.addEventListener('mouseup', endSelect);
 
-  // Touch move: find tile under finger
   boggleBoardEl.addEventListener('touchmove', e => {
     e.preventDefault();
     const touch = e.touches[0];
@@ -240,38 +218,38 @@ function renderBoard(b) {
   }, { passive: false });
 }
 
-// ── Selection logic ───────────────────────────────────────────────────────────
+// ── Selection ─────────────────────────────────────────────────────────────────
 function startSelect(idx) {
   if (!gameActive) return;
-  clearSelection();
+  // Clear typed input when drag starts
   wordInput.value = '';
+  wordInput.classList.remove('boggle-input-invalid');
+  tileEls.forEach(t => t.classList.remove('boggle-tile-typed', 'boggle-tile-last', 'boggle-tile-invalid'));
   selecting = true;
   selectedPath = [idx];
   updateTileVisuals();
-  syncDisplay();
+  // Sync the input to show the dragged word
+  wordInput.value = pathToWord(selectedPath);
 }
 
 function extendSelect(idx) {
   if (!selecting || !gameActive) return;
   if (selectedPath.includes(idx)) return;
-  const last = selectedPath[selectedPath.length - 1];
-  if (!adjacent(last, idx)) return;
+  if (!adjacent(selectedPath[selectedPath.length - 1], idx)) return;
   selectedPath.push(idx);
   updateTileVisuals();
-  syncDisplay();
+  wordInput.value = pathToWord(selectedPath);
 }
 
 function endSelect() {
   if (!selecting) return;
   selecting = false;
-  // Don't auto-submit — let user press Submit or Enter
 }
 
 function clearSelection() {
   selecting = false;
   selectedPath = [];
   updateTileVisuals();
-  syncDisplay();
 }
 
 function pathToWord(path) {
@@ -290,13 +268,9 @@ function updateTileVisuals() {
     tile.classList.toggle('boggle-tile-selected', inPath && !isLast);
     tile.classList.toggle('boggle-tile-last',     isLast);
     tile.classList.toggle('boggle-tile-adjacent', canExtend);
-    tile.classList.toggle('boggle-tile-used',     inPath);
 
-    if (inPath) {
-      tile.dataset.pos = pathPos + 1;
-    } else {
-      delete tile.dataset.pos;
-    }
+    if (inPath) { tile.dataset.pos = pathPos + 1; }
+    else        { delete tile.dataset.pos; }
   });
 }
 
@@ -307,7 +281,7 @@ function shakeTiles(path) {
   });
 }
 
-// ── Typed input → highlight path on board ────────────────────────────────────
+// ── Adjacency + typed path validation ────────────────────────────────────────
 function adjacent(i, j) {
   const r1 = Math.floor(i / 4), c1 = i % 4;
   const r2 = Math.floor(j / 4), c2 = j % 4;
@@ -315,15 +289,15 @@ function adjacent(i, j) {
 }
 
 function findPath(word) {
-  function dfs(w, pos, used, path) {
+  function dfs(w, lastIdx, used, path) {
     if (w.length === 0) return path;
     for (let next = 0; next < 16; next++) {
       if (used[next]) continue;
-      if (path.length > 0 && !adjacent(path[path.length - 1], next)) continue;
-      const tile = board[next] === 'Q' ? 'QU' : board[next];
-      if (w.startsWith(tile)) {
+      if (path.length > 0 && !adjacent(lastIdx, next)) continue;
+      const letter = board[next] === 'Q' ? 'QU' : board[next];
+      if (w.startsWith(letter)) {
         used[next] = true;
-        const result = dfs(w.slice(tile.length), next, used, [...path, next]);
+        const result = dfs(w.slice(letter.length), next, used, [...path, next]);
         if (result) return result;
         used[next] = false;
       }
@@ -331,11 +305,11 @@ function findPath(word) {
     return null;
   }
   for (let start = 0; start < 16; start++) {
-    const tile = board[start] === 'Q' ? 'QU' : board[start];
-    if (word.startsWith(tile)) {
+    const letter = board[start] === 'Q' ? 'QU' : board[start];
+    if (word.startsWith(letter)) {
       const used = new Array(16).fill(false);
       used[start] = true;
-      const path = dfs(word.slice(tile.length), start, used, [start]);
+      const path = dfs(word.slice(letter.length), start, used, [start]);
       if (path) return path;
     }
   }
@@ -349,28 +323,21 @@ function validateInputPath() {
 }
 
 function _doValidate() {
-  if (!board.length) return;
+  if (!board.length || selectedPath.length > 0) return;
   const w = wordInput.value.trim().toUpperCase();
 
-  // Drag selection active — don't interfere
-  if (selectedPath.length > 0) {
-    tileEls.forEach(t => t.classList.remove('boggle-tile-typed', 'boggle-tile-invalid'));
-    markDisplayInvalid(false);
-    return;
-  }
-
   tileEls.forEach(t => t.classList.remove('boggle-tile-typed', 'boggle-tile-last', 'boggle-tile-invalid'));
+  wordInput.classList.remove('boggle-input-invalid');
 
-  if (!w) { markDisplayInvalid(false); return; }
+  if (!w) return;
 
   const path = findPath(w);
   if (path) {
     path.forEach((idx, pos) => {
       tileEls[idx].classList.add(pos === path.length - 1 ? 'boggle-tile-last' : 'boggle-tile-typed');
     });
-    markDisplayInvalid(false);
   } else {
-    markDisplayInvalid(true);
+    wordInput.classList.add('boggle-input-invalid');
     tileEls.forEach(t => t.classList.add('boggle-tile-invalid'));
     setTimeout(() => tileEls.forEach(t => t.classList.remove('boggle-tile-invalid')), 280);
   }
@@ -400,7 +367,6 @@ function renderFoundWords() {
   const sorted = foundWords.slice().sort((a, b) => b.score - a.score || a.word.localeCompare(b.word));
   const total = sorted.reduce((s, fw) => s + fw.score, 0);
   if (boggleFoundScore) boggleFoundScore.textContent = `${total} pt${total !== 1 ? 's' : ''}`;
-
   sorted.forEach(({ word, score }) => {
     const chip = document.createElement('span');
     chip.className = 'boggle-word-chip';
@@ -414,6 +380,7 @@ function showResults(reason) {
   if (!gameState || !gameState.scores) return;
   stopTimer();
   submitWordBtn.disabled = true;
+  wordInput.disabled = true;
   endRoundWrap.classList.add('hidden');
 
   const scores  = gameState.scores;
@@ -468,10 +435,10 @@ function tickTimer() {
   if (remaining === 0) stopTimer();
 }
 
-// ── Scoring (mirrors server) ──────────────────────────────────────────────────
+// ── Scoring ───────────────────────────────────────────────────────────────────
 function scoreWord(word) {
   const len = word.length;
-  if (len < 3) return 0;
+  if (len < 3)  return 0;
   if (len <= 4) return 1;
   if (len === 5) return 2;
   if (len === 6) return 3;
