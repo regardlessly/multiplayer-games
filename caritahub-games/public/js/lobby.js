@@ -19,14 +19,24 @@ const GAMES = {
   xiangqi: {
     title: 'CaritaHub 象棋',
     subtitle: 'Chinese Chess — Multiplayer',
-    gamePage: '/game.html'
+    gamePage: '/game.html',
+    maxPlayers: 2,
+    hostColors: ['red']
   },
   chess: {
     title: 'CaritaHub Chess',
     subtitle: 'Western Chess — Multiplayer',
-    gamePage: '/chess-game.html'
+    gamePage: '/chess-game.html',
+    maxPlayers: 2,
+    hostColors: ['white']
+  },
+  chordaidi: {
+    title: '大老二 Chor Dai Di',
+    subtitle: 'Big Two — 4 Players',
+    gamePage: '/chordaidi-game.html',
+    maxPlayers: 4,
+    hostColors: ['south']
   }
-  // Future games: bingo, trivia, ludo …
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -86,7 +96,7 @@ socket.on('joined', ({ roomId, color }) => {
     return;
   }
 
-  const colorLabel = color === 'red' ? 'Red' : color === 'white' ? 'White' : 'Black';
+  const colorLabel = colorDisplayName(color);
   statusMsg.textContent = `You are the ${colorLabel} player.`;
   createBtn.classList.add('hidden');
   qrPanel.classList.remove('hidden');
@@ -109,11 +119,18 @@ socket.on('joined', ({ roomId, color }) => {
 socket.on('room_update', ({ players }) => {
   renderPlayerList(players);
 
-  const bothReady = players.filter(p => p.connected).length === 2;
-  const firstColors = ['red', 'white'];
-  if (firstColors.includes(myColor) && bothReady) {
+  const connectedCount = players.filter(p => p.connected).length;
+  const allReady = connectedCount >= gameMeta.maxPlayers;
+  const isHost = gameMeta.hostColors.includes(myColor);
+
+  if (isHost && allReady) {
     startBtn.classList.remove('hidden');
-    statusMsg.textContent = 'Both players connected! You can start the game.';
+    const needed = gameMeta.maxPlayers;
+    statusMsg.textContent = `All ${needed} players connected! You can start the game.`;
+  } else if (isHost) {
+    startBtn.classList.add('hidden');
+    const waiting = gameMeta.maxPlayers - connectedCount;
+    statusMsg.textContent = `Waiting for ${waiting} more player${waiting > 1 ? 's' : ''}…`;
   }
 });
 
@@ -125,12 +142,19 @@ socket.on('error', ({ message }) => {
   statusMsg.textContent = message;
   statusMsg.classList.add('error');
   createBtn.disabled = false;
+  startBtn.disabled = false;
 });
 
 socket.on('connect_error', () => {
   statusMsg.textContent = 'Connection failed. Please refresh.';
   statusMsg.classList.add('error');
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────
+function colorDisplayName(color) {
+  const map = { red: 'Red', white: 'White', black: 'Black', south: 'South', west: 'West', north: 'North', east: 'East' };
+  return map[color] || color;
+}
 
 function renderPlayerList(players) {
   playerListEl.innerHTML = '';
@@ -140,8 +164,7 @@ function renderPlayerList(players) {
     const dot = document.createElement('span');
     dot.className = `player-dot dot-${p.color}`;
     const label = document.createElement('span');
-    const pColorLabel = p.color === 'red' ? 'Red' : p.color === 'white' ? 'White' : 'Black';
-    label.textContent = `${p.name} (${pColorLabel})${p.connected ? '' : ' — disconnected'}`;
+    label.textContent = `${p.name} (${colorDisplayName(p.color)})${p.connected ? '' : ' — disconnected'}`;
     div.appendChild(dot);
     div.appendChild(label);
     playerListEl.appendChild(div);

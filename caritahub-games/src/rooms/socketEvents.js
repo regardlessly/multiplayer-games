@@ -1,8 +1,9 @@
 'use strict';
 
 const roomManager = require('./roomManager');
-const { createGame: createXiangqiGame } = require('../engine/xiangqi');
-const { createGame: createChessGame }   = require('../engine/chess');
+const { createGame: createXiangqiGame }    = require('../engine/xiangqi');
+const { createGame: createChessGame }      = require('../engine/chess');
+const { createGame: createChordaidiGame }  = require('../engine/chordaidi');
 const analytics = require('../analytics/clickhouse');
 
 // Active game engines per room
@@ -50,6 +51,40 @@ function gameStatePayload(roomId, room, engine) {
   };
 }
 
+// ── Chor Dai Di helpers ─────────────────────────────────────────────────────
+const CDI_COLORS = ['south', 'west', 'north', 'east'];
+
+function seatForColor(color) { return CDI_COLORS.indexOf(color); }
+
+/** Build the per-player game_state payload (hides other players' cards). */
+function chordaidiPayload(roomId, room, engine, myColor) {
+  const gs  = engine.state();
+  const mySeat = seatForColor(myColor);
+  return {
+    gameType: 'chordaidi',
+    myHand:       mySeat >= 0 ? gs.hands[mySeat] : [],
+    handCounts:   gs.hands.map(h => h.length),
+    currentSeat:  gs.currentSeat,
+    tableCombo:   gs.tableCombo,
+    tableOwner:   gs.tableOwner,
+    passCount:    gs.passCount,
+    isGameOver:   gs.isGameOver,
+    winner:       gs.winner,
+    players: room.players.map((p, i) => ({
+      name: p.name, color: p.color, connected: p.socketId !== null,
+      seat: seatForColor(p.color)
+    }))
+  };
+}
+
+/** Broadcast personalised states to all 4 players. */
+function broadcastCDI(io, roomId, room, engine) {
+  room.players.forEach(p => {
+    if (!p.socketId) return;
+    io.to(p.socketId).emit('game_state', chordaidiPayload(roomId, room, engine, p.color));
+  });
+}
+
 module.exports = function wireEvents(io) {
   io.on('connection', socket => {
     console.log('connect', socket.id);
@@ -73,7 +108,10 @@ module.exports = function wireEvents(io) {
 
       let targetRoomId = roomId;
       if (!targetRoomId) {
-        const colors = gameType === 'chess' ? ['white', 'black'] : ['red', 'black'];
+        let colors;
+        if (gameType === 'chess')     colors = ['white', 'black'];
+        else if (gameType === 'chordaidi') colors = ['south', 'west', 'north', 'east'];
+        else                          colors = ['red', 'black'];
         targetRoomId = roomManager.createRoom({ colors });
         roomGameTypes.set(targetRoomId, gameType);
       }
@@ -99,7 +137,12 @@ module.exports = function wireEvents(io) {
       // If game already in progress, send current state to reconnecting player
       if (engines.has(targetRoomId)) {
         const engine = engines.get(targetRoomId);
-        socket.emit('game_state', gameStatePayload(targetRoomId, room, engine));
+        const gt = roomGameTypes.get(targetRoomId) || 'xiangqi';
+        if (gt === 'chordaidi') {
+          socket.emit('game_state', chordaidiPayload(targetRoomId, room, engine, socket.data.color));
+        } else {
+          socket.emit('game_state', gameStatePayload(targetRoomId, room, engine));
+        }
       }
 
       io.to(targetRoomId).emit('room_update', roomSnapshot(room));
@@ -109,23 +152,40 @@ module.exports = function wireEvents(io) {
     socket.on('join_game',    handleJoin);
     socket.on('join_xiangqi', (data) => handleJoin({ ...data, gameType: data.gameType || 'xiangqi' }));
 
+    // ── Chor Dai Di: required player count ──────────────────────────
+    // start_game is repurposed — for CDI we need 4 players
+    // The 'start_game' handler below already handles the count check
+
     // ── Start game ──────────────────────────────────────────────────
     socket.on('start_game', () => {
       const roomId = socket.data.roomId;
       if (!roomId) return;
       const room = roomManager.getRoom(roomId);
       if (!room) return;
-      if (room.players.length < 2) {
-        return socket.emit('error', { message: 'Waiting for second player.' });
-      }
       if (engines.has(roomId)) return; // already started
 
       const gameType = roomGameTypes.get(roomId) || 'xiangqi';
-      const engine = gameType === 'chess' ? createChessGame() : createXiangqiGame();
+      const requiredPlayers = gameType === 'chordaidi' ? 4 : 2;
+      if (room.players.length < requiredPlayers) {
+        return socket.emit('error', { message: `Waiting for ${requiredPlayers - room.players.length} more player(s).` });
+      }
+
+      let engine;
+      if (gameType === 'chess')          engine = createChessGame();
+      else if (gameType === 'chordaidi') engine = createChordaidiGame();
+      else                               engine = createXiangqiGame();
       engines.set(roomId, engine);
 
-      const payload = gameStatePayload(roomId, room, engine);
-      io.to(roomId).emit('game_started', payload);
+      if (gameType === 'chordaidi') {
+        // Send each player their personalised state (private hand)
+        room.players.forEach(p => {
+          if (!p.socketId) return;
+          io.to(p.socketId).emit('game_started', chordaidiPayload(roomId, room, engine, p.color));
+        });
+      } else {
+        const payload = gameStatePayload(roomId, room, engine);
+        io.to(roomId).emit('game_started', payload);
+      }
       analytics.logEvent('game_started', roomId, socket.id, socket.data.playerName, { gameType });
     });
 
@@ -166,6 +226,45 @@ module.exports = function wireEvents(io) {
       if (payload.isGameOver) {
         analytics.logEvent('game_ended', roomId, socket.id, socket.data.playerName, { winner: payload.winner, gameType });
       }
+    });
+
+    // ── Chor Dai Di: play cards ──────────────────────────────────────
+    socket.on('cdi_play', ({ cardIds }) => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+      const engine = engines.get(roomId);
+      if (!engine) return socket.emit('invalid_move', { reason: 'Game not started' });
+      const room = roomManager.getRoom(roomId);
+      if (!room) return;
+
+      const seat = seatForColor(socket.data.color);
+      const result = engine.play(seat, cardIds);
+      if (!result.ok) return socket.emit('invalid_move', { reason: result.reason });
+
+      broadcastCDI(io, roomId, room, engine);
+      if (engine.isGameOver()) {
+        const winSeat = engine.winner();
+        const winPlayer = room.players.find(p => seatForColor(p.color) === winSeat);
+        io.to(roomId).emit('game_over', { winner: winPlayer?.color || null, reason: `${winPlayer?.name || 'Someone'} played all cards!` });
+        engines.delete(roomId);
+        roomGameTypes.delete(roomId);
+      }
+    });
+
+    // ── Chor Dai Di: pass ────────────────────────────────────────────
+    socket.on('cdi_pass', () => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+      const engine = engines.get(roomId);
+      if (!engine) return socket.emit('invalid_move', { reason: 'Game not started' });
+      const room = roomManager.getRoom(roomId);
+      if (!room) return;
+
+      const seat = seatForColor(socket.data.color);
+      const result = engine.pass(seat);
+      if (!result.ok) return socket.emit('invalid_move', { reason: result.reason });
+
+      broadcastCDI(io, roomId, room, engine);
     });
 
     // ── Undo request ────────────────────────────────────────────────

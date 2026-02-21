@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>大老二 Chor Dai Di</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="cdiApp">
+
+    <!-- Player info row -->
+    <div class="cdi-players" id="cdiPlayers">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- Status bar -->
+    <div id="statusBar">Loading game…</div>
+
+    <!-- Table (last played combo) -->
+    <div id="cdiTable">
+      <span id="cdiTableLabel">Table</span>
+      <div id="cdiTableCards"></div>
+      <span id="cdiComboType" class="combo-type-badge hidden"></span>
+    </div>
+
+    <!-- My hand label -->
+    <p class="hand-label">Your Hand</p>
+
+    <!-- My hand -->
+    <div id="myHand"></div>
+
+    <!-- Actions -->
+    <div class="cdi-actions">
+      <button id="playBtn"  class="btn btn-primary"   disabled>Play Selected</button>
+      <button id="passBtn"  class="btn btn-secondary" disabled>Pass</button>
+    </div>
+
+  </div>
+
+  <!-- Game over overlay -->
+  <div id="gameOverOverlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h2 id="gameOverTitle">Game Over</h2>
+      <p  id="gameOverMsg"></p>
+      <button id="backLobbyBtn" class="btn btn-primary">Back to Lobby</button>
+    </div>
+  </div>
+
+  <!-- Reconnecting overlay -->
+  <div id="reconnectOverlay" class="overlay">
+    <div class="overlay-box">
+      <div class="spinner"></div>
+      <h2>Reconnecting…</h2>
+      <p id="reconnectMsg">Please wait.</p>
+      <a id="backLobbyLink" href="/" class="btn btn-secondary hidden">Back to Lobby</a>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/chordaidi-game.js"></script>
+</body>
+</html>

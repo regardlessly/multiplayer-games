@@ -48,7 +48,7 @@ function joinRoom(roomId, socketId, name) {
     return { room, color: existing.color, reconnected: true };
   }
 
-  if (room.players.length < 2) {
+  if (room.players.length < room.colors.length) {
     const color = room.colors[room.players.length];
     room.players.push({ socketId, name, color });
     return { room, color, reconnected: false };
