@@ -46,6 +46,7 @@ const reconnectOverlay = document.getElementById('reconnectOverlay');
 const callerPanel      = document.getElementById('callerPanel');
 const callBtn          = document.getElementById('callBtn');
 const lastCalledEl     = document.getElementById('lastCalled');
+const calledCountEl    = document.getElementById('calledCount');
 const calledBallsEl    = document.getElementById('calledBalls');
 const bingoPlayersEl   = document.getElementById('bingoPlayers');
 const myCardEl         = document.getElementById('myBingoCard');
@@ -85,10 +86,11 @@ socket.on('game_state', (state) => {
 
 socket.on('game_over', ({ winner, reason }) => {
   gameActive = false;
-  gameOverTitle.textContent = '🎉 BINGO!';
+  gameOverTitle.textContent = 'BINGO!';
   gameOverMsg.textContent   = reason || `Winner: ${winner}`;
   gameOverOverlay.classList.remove('hidden');
   callBtn.disabled = true;
+  callBtn.classList.remove('bingo-ready');
 });
 
 socket.on('player_disconnected', ({ playerName }) => {
@@ -97,7 +99,10 @@ socket.on('player_disconnected', ({ playerName }) => {
 
 socket.on('error', ({ message }) => {
   statusBar.textContent = message;
-  callBtn.disabled = false;
+  if (isCaller && gameActive) {
+    callBtn.disabled = false;
+    callBtn.classList.add('bingo-ready');
+  }
 });
 
 socket.on('connect_error', () => {
@@ -107,6 +112,7 @@ socket.on('connect_error', () => {
 // ── Caller button ─────────────────────────────────────────────────────────────
 callBtn.addEventListener('click', () => {
   callBtn.disabled = true;
+  callBtn.classList.remove('bingo-ready');
   socket.emit('bingo_call');
 });
 
@@ -123,12 +129,25 @@ function applyState(state) {
   if (isCaller && gameActive) {
     callerPanel.classList.remove('hidden');
     callBtn.disabled = false;
+    callBtn.classList.add('bingo-ready');
   }
 
-  // Last called number
+  // Last called number (with pop animation)
   if (state.lastCalled) {
     const col = COLS[Math.floor((state.lastCalled - 1) / 15)];
-    lastCalledEl.textContent = `${col}${state.lastCalled}`;
+    const label = `${col}${state.lastCalled}`;
+    if (lastCalledEl.textContent !== label) {
+      lastCalledEl.textContent = label;
+      lastCalledEl.classList.remove('bingo-pop');
+      // Force reflow to restart animation
+      void lastCalledEl.offsetWidth;
+      lastCalledEl.classList.add('bingo-pop');
+    }
+  }
+
+  // Called count
+  if (calledCountEl) {
+    calledCountEl.innerHTML = `${state.called.length} <span class="bingo-count-of">/ 75</span>`;
   }
 
   // Called balls strip
@@ -150,13 +169,13 @@ function applyState(state) {
 // ── Renderers ─────────────────────────────────────────────────────────────────
 function renderCalledBalls(called) {
   calledBallsEl.innerHTML = '';
-  // Show last 20 in reverse so newest is first
-  const recent = called.slice().reverse().slice(0, 30);
-  recent.forEach(n => {
-    const col  = Math.floor((n - 1) / 15);
+  // Newest first, show up to 40
+  const recent = called.slice().reverse().slice(0, 40);
+  recent.forEach((n, idx) => {
+    const col    = Math.floor((n - 1) / 15);
     const letter = COLS[col];
-    const ball = document.createElement('div');
-    ball.className = 'bingo-ball';
+    const ball   = document.createElement('div');
+    ball.className = 'bingo-ball' + (idx === 0 ? ' bingo-ball-new' : '');
     ball.style.background = COLOR_HEX[BINGO_COLORS[col]] || '#1155cc';
     ball.textContent = `${letter}${n}`;
     calledBallsEl.appendChild(ball);

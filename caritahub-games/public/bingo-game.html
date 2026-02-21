@@ -29,32 +29,51 @@
         <!-- Players row -->
         <div id="bingoPlayers" class="bingo-players"></div>
 
-        <!-- Caller controls -->
-        <div id="callerPanel" class="bingo-caller-panel hidden">
-          <button id="callBtn" class="btn btn-primary btn-lg">🎱 Call Next Number</button>
-        </div>
-
-        <!-- Called numbers display -->
-        <div class="bingo-called-wrap">
+        <!-- ── Hero: last called number ── -->
+        <div class="bingo-hero-wrap">
           <div class="bingo-last-number-wrap">
             <div class="bingo-last-label">Last Called</div>
             <div id="lastCalled" class="bingo-last-number">—</div>
           </div>
+          <div class="bingo-count-wrap">
+            <div class="bingo-count-label">Called</div>
+            <div id="calledCount" class="bingo-count-num">0 <span class="bingo-count-of">/ 75</span></div>
+          </div>
+        </div>
+
+        <!-- ── Called balls strip ── -->
+        <div class="bingo-balls-section">
+          <div class="bingo-balls-header">
+            <span class="bingo-col-label" style="color:#1155cc">B</span>
+            <span class="bingo-col-label" style="color:#c0392b">I</span>
+            <span class="bingo-col-label" style="color:#1a6e1a">N</span>
+            <span class="bingo-col-label" style="color:#7d3c98">G</span>
+            <span class="bingo-col-label" style="color:#b7600a">O</span>
+          </div>
           <div id="calledBalls" class="bingo-balls"></div>
         </div>
 
-        <!-- Bingo Card -->
+        <!-- ── Bingo Card ── -->
         <div class="bingo-card-wrap">
           <div id="myBingoCard" class="bingo-card"></div>
+        </div>
+
+        <!-- ── Caller controls (host only, shown below card) ── -->
+        <div id="callerPanel" class="bingo-caller-panel hidden">
+          <button id="callBtn" class="bingo-call-btn">
+            <span class="bingo-call-icon">🎱</span>
+            <span class="bingo-call-text">Call Next Number</span>
+          </button>
         </div>
 
       </div>
 
       <!-- Game over overlay -->
       <div id="gameOverOverlay" class="overlay-card hidden">
-        <h2 id="gameOverTitle">🎉 BINGO!</h2>
+        <div class="bingo-winner-badge">🎉</div>
+        <h2 id="gameOverTitle">BINGO!</h2>
         <p id="gameOverMsg"></p>
-        <a href="/" class="btn btn-primary">Back to Games</a>
+        <a href="/" class="btn btn-primary" style="margin-top:20px">Back to Games</a>
       </div>
 
       <!-- Reconnect overlay -->
