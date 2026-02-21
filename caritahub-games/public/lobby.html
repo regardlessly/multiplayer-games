@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CaritaHub Games — Lobby</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <a href="/" class="back-link">← All Games</a>
+      <h1 id="gameTitle">CaritaHub Games</h1>
+      <p class="subtitle" id="gameSubtitle">Multiplayer</p>
+    </header>
+
+    <main id="lobby">
+      <div class="card">
+        <label for="playerName" class="label-lg">Your Name</label>
+        <input id="playerName" type="text" placeholder="Enter your name" maxlength="30" autocomplete="off" />
+
+        <button id="createBtn" class="btn btn-primary">Create Game</button>
+
+        <div id="statusMsg" class="status-msg" aria-live="polite"></div>
+      </div>
+
+      <!-- QR Panel — shown after creating a room -->
+      <div id="qrPanel" class="card hidden">
+        <p class="label-lg">Share this QR code with your opponent</p>
+        <div id="qrcode"></div>
+        <p id="joinLink" class="join-link"></p>
+        <div id="playerList" class="player-list"></div>
+        <button id="startBtn" class="btn btn-success hidden">Start Game</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="/js/lobby.js"></script>
+</body>
+</html>

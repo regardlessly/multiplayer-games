@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CaritaHub Games</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .game-card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+    }
+    .game-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+    .game-card:active { transform: translateY(0); }
+
+    .game-card-banner {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      user-select: none;
+    }
+
+    .game-card-body {
+      padding: 16px 18px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .game-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+    .game-card-subtitle {
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .game-card-meta {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: #f0e8d0;
+      color: #5a3010;
+    }
+    .badge-ready { background: #d4edda; color: #155724; }
+    .badge-soon { background: #e8e8e8; color: #666; }
+
+    .game-card.coming-soon {
+      opacity: 0.55;
+      cursor: default;
+    }
+    .game-card.coming-soon:hover { transform: none; box-shadow: 0 2px 10px rgba(0,0,0,0.10); }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 24px 0 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="games-lobby">
+    <header>
+      <h1>CaritaHub Games</h1>
+      <p class="subtitle">Choose a game to play with a friend</p>
+    </header>
+
+    <main>
+      <p class="section-title">Available Now</p>
+      <div class="games-grid">
+
+        <a class="game-card" href="/lobby.html?game=xiangqi">
+          <div class="game-card-banner" style="background: linear-gradient(135deg, #8b0000 0%, #c0392b 100%);">
+            ♟
+          </div>
+          <div class="game-card-body">
+            <div class="game-card-title">象棋 Xiangqi</div>
+            <div class="game-card-subtitle">Chinese Chess — 2 players</div>
+            <div class="game-card-meta">
+              <span class="badge badge-ready">Ready to play</span>
+              <span class="badge">2 players</span>
+            </div>
+          </div>
+        </a>
+
+        <a class="game-card" href="/lobby.html?game=chess">
+          <div class="game-card-banner" style="background: linear-gradient(135deg, #2c2c2c 0%, #5a5a5a 100%);">
+            ♔
+          </div>
+          <div class="game-card-body">
+            <div class="game-card-title">Western Chess</div>
+            <div class="game-card-subtitle">Chess — 2 players</div>
+            <div class="game-card-meta">
+              <span class="badge badge-ready">Ready to play</span>
+              <span class="badge">2 players</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+
+      <p class="section-title">Coming Soon</p>
+      <div class="games-grid">
+
+        <div class="game-card coming-soon">
+          <div class="game-card-banner" style="background: linear-gradient(135deg, #1a6e1a 0%, #27ae60 100%);">
+            🎱
+          </div>
+          <div class="game-card-body">
+            <div class="game-card-title">Bingo</div>
+            <div class="game-card-subtitle">Up to 8 players, facilitator mode</div>
+            <div class="game-card-meta">
+              <span class="badge badge-soon">Coming soon</span>
+              <span class="badge">Up to 8 players</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-card coming-soon">
+          <div class="game-card-banner" style="background: linear-gradient(135deg, #1a3a8b 0%, #2980b9 100%);">
+            ❓
+          </div>
+          <div class="game-card-body">
+            <div class="game-card-title">Trivia Quiz</div>
+            <div class="game-card-subtitle">Singapore-themed, buzz-in mechanic</div>
+            <div class="game-card-meta">
+              <span class="badge badge-soon">Coming soon</span>
+              <span class="badge">2–6 players</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-card coming-soon">
+          <div class="game-card-banner" style="background: linear-gradient(135deg, #7d3c98 0%, #a569bd 100%);">
+            🃏
+          </div>
+          <div class="game-card-body">
+            <div class="game-card-title">Memory Cards</div>
+            <div class="game-card-subtitle">Familiar imagery, cooperative option</div>
+            <div class="game-card-meta">
+              <span class="badge badge-soon">Coming soon</span>
+              <span class="badge">2 players</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-card coming-soon">
+          <div class="game-card-banner" style="background: linear-gradient(135deg, #b7600a 0%, #e67e22 100%);">
+            🎲
+          </div>
+          <div class="game-card-body">
+            <div class="game-card-title">飞行棋 Ludo</div>
+            <div class="game-card-subtitle">Pan-ASEAN classic, up to 4 players</div>
+            <div class="game-card-meta">
+              <span class="badge badge-soon">Coming soon</span>
+              <span class="badge">2–4 players</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

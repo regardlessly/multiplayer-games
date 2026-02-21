@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CaritaHub Chess — Game</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="gameApp">
+    <!-- Opponent panel (top) -->
+    <div id="opponentPanel" class="player-panel panel-black">
+      <span id="opponentName">Opponent</span>
+      <span id="opponentTag">Black</span>
+    </div>
+
+    <!-- Status bar -->
+    <div id="statusBar">Loading game…</div>
+
+    <!-- Board canvas -->
+    <canvas id="boardCanvas"></canvas>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button id="undoBtn" class="btn btn-secondary" disabled>Undo</button>
+      <button id="resignBtn" class="btn btn-danger">Resign</button>
+    </div>
+
+    <!-- My panel (bottom) -->
+    <div id="myPanel" class="player-panel panel-red">
+      <span id="myName">You</span>
+      <span id="myTag">White</span>
+    </div>
+  </div>
+
+  <!-- Promotion picker overlay -->
+  <div id="promotionOverlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h2>Promote Pawn</h2>
+      <p>Choose a piece:</p>
+      <div class="overlay-btns" id="promotionChoices" style="flex-wrap:wrap; gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Undo request overlay -->
+  <div id="undoOverlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h2>Undo Request</h2>
+      <p id="undoMsg">Your opponent wants to undo the last move.</p>
+      <div class="overlay-btns">
+        <button id="acceptUndoBtn" class="btn btn-success">Accept</button>
+        <button id="declineUndoBtn" class="btn btn-danger">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resign confirm overlay -->
+  <div id="resignOverlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h2>Resign?</h2>
+      <p>Are you sure you want to resign?</p>
+      <div class="overlay-btns">
+        <button id="confirmResignBtn" class="btn btn-danger">Yes, Resign</button>
+        <button id="cancelResignBtn" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game over overlay -->
+  <div id="gameOverOverlay" class="overlay hidden">
+    <div class="overlay-box">
+      <h2 id="gameOverTitle">Game Over</h2>
+      <p id="gameOverMsg"></p>
+      <button id="backLobbyBtn" class="btn btn-primary">Back to Lobby</button>
+    </div>
+  </div>
+
+  <!-- Reconnecting overlay -->
+  <div id="reconnectOverlay" class="overlay">
+    <div class="overlay-box">
+      <div class="spinner"></div>
+      <h2>Reconnecting…</h2>
+      <p id="reconnectMsg">Please wait.</p>
+      <a id="backLobbyLink" href="/lobby.html?game=chess" class="btn btn-secondary hidden">Back to Lobby</a>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/chess-moves.js"></script>
+  <script src="/js/chess-board.js"></script>
+  <script src="/js/chess-game.js"></script>
+</body>
+</html>
