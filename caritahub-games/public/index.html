@@ -55,6 +55,20 @@
 
       </div>
 
+      <!-- ── Leaderboard ── -->
+      <p class="section-title">Leaderboard</p>
+      <div id="leaderboardPanel" class="leaderboard-panel">
+        <div class="lb-tabs">
+          <button class="lb-tab active" data-game="all">All Games</button>
+          <button class="lb-tab" data-game="xiangqi">象棋</button>
+          <button class="lb-tab" data-game="chess">Chess</button>
+          <button class="lb-tab" data-game="chordaidi">大老二</button>
+        </div>
+        <div id="lbBody" class="lb-body">
+          <p class="lb-empty">No games played yet.</p>
+        </div>
+      </div>
+
       <p class="section-title">Coming Soon</p>
       <div class="games-grid">
 
@@ -97,5 +111,68 @@
       </div>
     </main>
   </div>
+  <script>
+  (function () {
+    'use strict';
+    let allData = {};
+    let activeGame = 'all';
+
+    const GAME_LABELS = { xiangqi: '象棋 Xiangqi', chess: 'Western Chess', chordaidi: '大老二 Chor Dai Di' };
+    const RANK_CLASSES = ['lb-rank-gold', 'lb-rank-silver', 'lb-rank-bronze'];
+
+    function renderRows(entries) {
+      const body = document.getElementById('lbBody');
+      if (!entries || !entries.length) {
+        body.innerHTML = '<p class="lb-empty">No games played yet.</p>';
+        return;
+      }
+      body.innerHTML = entries.map((e, i) => {
+        const rankClass = i < 3 ? RANK_CLASSES[i] : '';
+        const rankSymbol = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+        return `<div class="lb-row">
+          <span class="lb-rank ${rankClass}">${rankSymbol}</span>
+          <span class="lb-name">${escHtml(e.name)}</span>
+          <span class="lb-wins">${e.wins} win${e.wins !== 1 ? 's' : ''}</span>
+        </div>`;
+      }).join('');
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function showTab(game) {
+      activeGame = game;
+      document.querySelectorAll('.lb-tab').forEach(t => t.classList.toggle('active', t.dataset.game === game));
+      if (game === 'all') {
+        // Aggregate across all game types
+        const agg = new Map();
+        for (const entries of Object.values(allData)) {
+          for (const e of entries) agg.set(e.name, (agg.get(e.name) || 0) + e.wins);
+        }
+        const sorted = Array.from(agg.entries()).map(([name, wins]) => ({ name, wins }))
+          .sort((a, b) => b.wins - a.wins).slice(0, 10);
+        renderRows(sorted);
+      } else {
+        renderRows(allData[game] || []);
+      }
+    }
+
+    async function fetchLeaderboard() {
+      try {
+        const res = await fetch('/api/leaderboard');
+        allData = await res.json();
+        showTab(activeGame);
+      } catch (_) { /* server not ready yet */ }
+    }
+
+    document.querySelectorAll('.lb-tab').forEach(btn => {
+      btn.addEventListener('click', () => showTab(btn.dataset.game));
+    });
+
+    fetchLeaderboard();
+    setInterval(fetchLeaderboard, 30_000); // refresh every 30s
+  })();
+  </script>
 </body>
 </html>

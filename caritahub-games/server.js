@@ -34,6 +34,12 @@ app.get('/join', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'lobby.html'));
 });
 
+// Leaderboard endpoint
+app.get('/api/leaderboard', (req, res) => {
+  const leaderboard = require('./src/leaderboard');
+  res.json(leaderboard.getAllLeaderboards(10));
+});
+
 // Health endpoint
 app.get('/health', (req, res) => {
   const roomManager = require('./src/rooms/roomManager');

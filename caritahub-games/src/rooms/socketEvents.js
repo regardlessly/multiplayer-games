@@ -5,6 +5,7 @@ const { createGame: createXiangqiGame }    = require('../engine/xiangqi');
 const { createGame: createChessGame }      = require('../engine/chess');
 const { createGame: createChordaidiGame }  = require('../engine/chordaidi');
 const analytics = require('../analytics/clickhouse');
+const leaderboard = require('../leaderboard');
 
 // Active game engines per room
 const engines = new Map();
@@ -224,6 +225,10 @@ module.exports = function wireEvents(io) {
       analytics.logEvent('move_made', roomId, socket.id, socket.data.playerName, { from, to, gameType });
 
       if (payload.isGameOver) {
+        if (payload.winner) {
+          const winPlayer = room.players.find(p => p.color === payload.winner);
+          if (winPlayer) leaderboard.recordWin(gameType, winPlayer.name);
+        }
         analytics.logEvent('game_ended', roomId, socket.id, socket.data.playerName, { winner: payload.winner, gameType });
       }
     });
@@ -246,6 +251,7 @@ module.exports = function wireEvents(io) {
         const winSeat = engine.winner();
         const winPlayer = room.players.find(p => seatForColor(p.color) === winSeat);
         io.to(roomId).emit('game_over', { winner: winPlayer?.color || null, reason: `${winPlayer?.name || 'Someone'} played all cards!` });
+        if (winPlayer) leaderboard.recordWin('chordaidi', winPlayer.name);
         engines.delete(roomId);
         roomGameTypes.delete(roomId);
       }
@@ -309,8 +315,11 @@ module.exports = function wireEvents(io) {
       const room = roomManager.getRoom(roomId);
       if (!room) return;
       // Opponent of the resigning player wins
-      const winner = room.players.find(p => p.color !== socket.data.color)?.color || null;
+      const winnerPlayer = room.players.find(p => p.color !== socket.data.color);
+      const winner = winnerPlayer?.color || null;
       io.to(roomId).emit('game_over', { winner, reason: `${socket.data.playerName} resigned` });
+      const gt = roomGameTypes.get(roomId) || 'xiangqi';
+      if (winnerPlayer) leaderboard.recordWin(gt, winnerPlayer.name);
       engines.delete(roomId);
       roomGameTypes.delete(roomId);
       analytics.logEvent('game_ended', roomId, socket.id, socket.data.playerName, { winner, reason: 'resign' });
