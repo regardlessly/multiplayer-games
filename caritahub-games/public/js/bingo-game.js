@@ -63,7 +63,10 @@ socket.on('disconnect', () => {
 });
 
 socket.on('joined', ({ color, reconnected }) => {
-  statusBar.textContent = `You are the ${COLOR_NAMES[color] || color}${isCaller ? ' (Caller)' : ''}`;
+  const label = COLOR_NAMES[color] || color;
+  statusBar.textContent = isCaller
+    ? 'You are the Caller — draw numbers for all players'
+    : `You are ${label}`;
 });
 
 socket.on('room_update', ({ players }) => {
