@@ -824,8 +824,46 @@ input[type="text"]:focus { border-color: var(--blue); }
 .boggle-tile:hover { background: var(--blue-light); transform: scale(1.07); }
 .boggle-tile:active { transform: scale(0.96); }
 
+/* Tile drag/type selection states */
+.boggle-tile-selected {
+  background: #1155cc !important;
+  color: white !important;
+  border-color: #0d3fa6 !important;
+  transform: scale(1.05);
+}
+.boggle-tile-last {
+  background: #0d3fa6 !important;
+  color: white !important;
+  border-color: #0a2f80 !important;
+  transform: scale(1.12);
+  box-shadow: 0 2px 8px rgba(13,63,166,0.4);
+}
+.boggle-tile-adjacent {
+  background: #e8f0fe !important;
+  outline: 2px dashed #1155cc;
+  outline-offset: -2px;
+}
+.boggle-tile-typed {
+  background: #cfe2f3 !important;
+  color: #1155cc !important;
+  border-color: #1155cc !important;
+}
+.boggle-tile-invalid {
+  background: #fde8e8 !important;
+  border-color: #c0392b !important;
+  color: #c0392b !important;
+}
+@keyframes boggle-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-5px); }
+  40%       { transform: translateX(5px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+.boggle-tile-shake { animation: boggle-shake 0.35s ease; }
+
 /* Word entry */
-.boggle-entry { display: flex; gap: 8px; width: 100%; max-width: 300px; }
+.boggle-entry { display: flex; gap: 8px; width: 100%; max-width: 340px; align-items: center; }
 .boggle-word-input {
   flex: 1; padding: 10px 14px; border-radius: 8px;
   border: 2px solid #ccc; font-size: 1rem; font-weight: 700;
@@ -833,6 +871,8 @@ input[type="text"]:focus { border-color: var(--blue); }
   outline: none; transition: border-color 0.15s;
 }
 .boggle-word-input:focus { border-color: var(--blue); }
+.boggle-input-invalid { border-color: #c0392b !important; background: #fff5f5; }
+.boggle-clear-btn { padding: 10px 12px !important; font-size: 1rem; line-height: 1; min-width: 40px; flex-shrink: 0; }
 
 /* Feedback */
 .boggle-feedback {
