@@ -5,6 +5,7 @@ const { createGame: createXiangqiGame }    = require('../engine/xiangqi');
 const { createGame: createChessGame }      = require('../engine/chess');
 const { createGame: createChordaidiGame }  = require('../engine/chordaidi');
 const { createGame: createBingoGame }      = require('../engine/bingo');
+const { createGame: createBoggleGame }     = require('../engine/boggle');
 const analytics = require('../analytics/clickhouse');
 const leaderboard = require('../leaderboard');
 
@@ -115,6 +116,34 @@ function broadcastBingo(io, roomId, room, engine) {
   io.to(roomId).emit('game_state', bingoPayload(roomId, room, engine));
 }
 
+// ── Boggle helpers ───────────────────────────────────────────────────────────
+const BOGGLE_COLORS = ['red', 'blue', 'green', 'purple'];
+
+function seatForBoggleColor(color) { return BOGGLE_COLORS.indexOf(color); }
+
+function bogglePayload(roomId, room, engine) {
+  const gs = engine.state();
+  return {
+    gameType: 'boggle',
+    board:              gs.board,
+    timeLeft:           gs.timeLeft,
+    startTime:          gs.startTime,
+    roundSeconds:       gs.roundSeconds,
+    submissionCounts:   gs.submissionCounts,
+    isGameOver:         gs.isGameOver,
+    scores:             gs.scores,
+    words:              gs.words,
+    playerCount:        gs.playerCount,
+    players: room.players.map(p => ({
+      name: p.name, color: p.color, connected: p.socketId !== null,
+      seat: seatForBoggleColor(p.color)
+    }))
+  };
+}
+
+// Active server-side round timers
+const boggleTimers = new Map(); // roomId → timeoutHandle
+
 module.exports = function wireEvents(io) {
   io.on('connection', socket => {
     console.log('connect', socket.id);
@@ -142,6 +171,7 @@ module.exports = function wireEvents(io) {
         if (gameType === 'chess')          colors = ['white', 'black'];
         else if (gameType === 'chordaidi') colors = ['south', 'west', 'north', 'east'];
         else if (gameType === 'bingo')     colors = BINGO_COLORS.slice(); // 8 seats
+        else if (gameType === 'boggle')    colors = BOGGLE_COLORS.slice(0, 4); // up to 4
         else                               colors = ['red', 'black'];
         targetRoomId = roomManager.createRoom({ colors });
         roomGameTypes.set(targetRoomId, gameType);
@@ -173,6 +203,8 @@ module.exports = function wireEvents(io) {
           socket.emit('game_state', chordaidiPayload(targetRoomId, room, engine, socket.data.color));
         } else if (gt === 'bingo') {
           socket.emit('game_state', bingoPayload(targetRoomId, room, engine));
+        } else if (gt === 'boggle') {
+          socket.emit('game_state', bogglePayload(targetRoomId, room, engine));
         } else {
           socket.emit('game_state', gameStatePayload(targetRoomId, room, engine));
         }
@@ -207,6 +239,7 @@ module.exports = function wireEvents(io) {
       if (gameType === 'chess')          engine = createChessGame();
       else if (gameType === 'chordaidi') engine = createChordaidiGame();
       else if (gameType === 'bingo')     engine = createBingoGame(room.players.length);
+      else if (gameType === 'boggle')    engine = createBoggleGame(room.players.length);
       else                               engine = createXiangqiGame();
       engines.set(roomId, engine);
 
@@ -218,6 +251,31 @@ module.exports = function wireEvents(io) {
         });
       } else if (gameType === 'bingo') {
         io.to(roomId).emit('game_started', bingoPayload(roomId, room, engine));
+      } else if (gameType === 'boggle') {
+        io.to(roomId).emit('game_started', bogglePayload(roomId, room, engine));
+        // Auto-end round after 180 seconds
+        const timer = setTimeout(() => {
+          const eng = engines.get(roomId);
+          const rm  = roomManager.getRoom(roomId);
+          if (!eng || !rm) return;
+          eng.endRound();
+          const payload = bogglePayload(roomId, rm, eng);
+          io.to(roomId).emit('game_state', payload);
+          // Determine winner and record
+          const winSeat = eng.winner();
+          const winPlayer = rm.players.find(p => seatForBoggleColor(p.color) === winSeat);
+          if (winPlayer) leaderboard.recordWin('boggle', winPlayer.name);
+          const winnerColor = winPlayer?.color || null;
+          io.to(roomId).emit('game_over', {
+            winner: winnerColor,
+            reason: winPlayer ? `${winPlayer.name} wins with ${eng.state().scores[winSeat]} points!` : "Time's up!"
+          });
+          engines.delete(roomId);
+          roomGameTypes.delete(roomId);
+          boggleTimers.delete(roomId);
+          analytics.logEvent('game_ended', roomId, 'timer', 'timer', { winner: winnerColor, gameType: 'boggle' });
+        }, 180_000);
+        boggleTimers.set(roomId, timer);
       } else {
         const payload = gameStatePayload(roomId, room, engine);
         io.to(roomId).emit('game_started', payload);
@@ -342,6 +400,60 @@ module.exports = function wireEvents(io) {
         roomGameTypes.delete(roomId);
         analytics.logEvent('game_ended', roomId, socket.id, socket.data.playerName, { winner: winNames.join(', '), gameType: 'bingo' });
       }
+    });
+
+    // ── Boggle: submit a word ────────────────────────────────────────
+    socket.on('boggle_submit', ({ word }) => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+      const engine = engines.get(roomId);
+      if (!engine) return socket.emit('error', { message: 'Game not started' });
+      const room = roomManager.getRoom(roomId);
+      if (!room) return;
+
+      const seat = seatForBoggleColor(socket.data.color);
+      const result = engine.submitWord(seat, word);
+      if (!result.ok) return socket.emit('boggle_reject', { word, reason: result.reason });
+
+      // Confirm to submitter; broadcast updated counts to all
+      socket.emit('boggle_accept', { word: result.word });
+      io.to(roomId).emit('boggle_counts', {
+        submissionCounts: engine.state().submissionCounts
+      });
+    });
+
+    // ── Boggle: host ends round early ────────────────────────────────
+    socket.on('boggle_end', () => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+      const engine = engines.get(roomId);
+      if (!engine) return;
+      const room = roomManager.getRoom(roomId);
+      if (!room) return;
+      // Only the red (seat 0 / host) player can end early
+      if (socket.data.color !== 'red') return;
+
+      // Cancel auto-timer
+      if (boggleTimers.has(roomId)) {
+        clearTimeout(boggleTimers.get(roomId));
+        boggleTimers.delete(roomId);
+      }
+
+      engine.endRound();
+      const payload = bogglePayload(roomId, room, engine);
+      io.to(roomId).emit('game_state', payload);
+
+      const winSeat = engine.winner();
+      const winPlayer = room.players.find(p => seatForBoggleColor(p.color) === winSeat);
+      if (winPlayer) leaderboard.recordWin('boggle', winPlayer.name);
+      const winnerColor = winPlayer?.color || null;
+      io.to(roomId).emit('game_over', {
+        winner: winnerColor,
+        reason: winPlayer ? `${winPlayer.name} wins with ${engine.state().scores[winSeat]} points!` : "Game over!"
+      });
+      engines.delete(roomId);
+      roomGameTypes.delete(roomId);
+      analytics.logEvent('game_ended', roomId, socket.id, socket.data.playerName, { winner: winnerColor, gameType: 'boggle' });
     });
 
     // ── Undo request ────────────────────────────────────────────────

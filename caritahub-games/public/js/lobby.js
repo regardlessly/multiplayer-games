@@ -43,6 +43,13 @@ const GAMES = {
     gamePage: '/bingo-game.html',
     maxPlayers: 2,      // minimum to start; caller can begin with 2+
     hostColors: ['caller']
+  },
+  boggle: {
+    title: 'CaritaHub Boggle',
+    subtitle: 'Word Hunt — 2 to 4 Players, 3-min round',
+    gamePage: '/boggle-game.html',
+    maxPlayers: 2,
+    hostColors: ['red']
   }
 };
 
@@ -163,7 +170,8 @@ function colorDisplayName(color) {
     red: 'Red', white: 'White', black: 'Black',
     south: 'South', west: 'West', north: 'North', east: 'East',
     caller: 'Caller', p2: 'Player 2', p3: 'Player 3', p4: 'Player 4',
-    p5: 'Player 5', p6: 'Player 6', p7: 'Player 7', p8: 'Player 8'
+    p5: 'Player 5', p6: 'Player 6', p7: 'Player 7', p8: 'Player 8',
+    red: 'Red', blue: 'Blue', green: 'Green', purple: 'Purple'
   };
   return map[color] || color;
 }

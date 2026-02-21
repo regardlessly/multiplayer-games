@@ -750,5 +750,140 @@ input[type="text"]:focus { border-color: var(--blue); }
 .dot-p7     { background: #8b6914; }
 .dot-p8     { background: #555; }
 
+/* ===== Boggle ===== */
+
+/* Top bar */
+.boggle-topbar {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.boggle-timer-wrap {
+  flex-shrink: 0;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 8px 16px;
+  text-align: center;
+  min-width: 90px;
+}
+.boggle-timer-label {
+  font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.boggle-timer {
+  font-size: 1.75rem; font-weight: 800; color: var(--blue); line-height: 1.1;
+  transition: color 0.3s;
+}
+.boggle-timer.boggle-timer-urgent { color: #c0392b; }
+
+/* Player chips */
+.boggle-players { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; align-items: center; }
+
+.boggle-player-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--white); border: 2px solid #ccc; border-radius: 20px;
+  padding: 4px 12px 4px 8px; font-size: 0.85rem; font-weight: 700;
+  box-shadow: var(--shadow);
+}
+.boggle-player-chip.boggle-me { background: #edf3ff; }
+.boggle-player-chip.disconnected { opacity: 0.45; }
+.boggle-chip-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.boggle-chip-name { color: var(--text); }
+.boggle-chip-count {
+  font-size: 0.72rem; font-weight: 700;
+  background: var(--blue-light); color: var(--blue);
+  border-radius: 10px; padding: 1px 7px;
+}
+
+/* Main play area */
+.boggle-main { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+/* 4×4 grid */
+.boggle-board {
+  display: grid;
+  grid-template-columns: repeat(4, 60px);
+  gap: 6px;
+}
+.boggle-tile {
+  width: 60px; height: 60px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 1.35rem; font-weight: 800;
+  color: var(--text);
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.12s, transform 0.1s;
+}
+.boggle-tile:hover { background: var(--blue-light); transform: scale(1.07); }
+.boggle-tile:active { transform: scale(0.96); }
+
+/* Word entry */
+.boggle-entry { display: flex; gap: 8px; width: 100%; max-width: 300px; }
+.boggle-word-input {
+  flex: 1; padding: 10px 14px; border-radius: 8px;
+  border: 2px solid #ccc; font-size: 1rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  outline: none; transition: border-color 0.15s;
+}
+.boggle-word-input:focus { border-color: var(--blue); }
+
+/* Feedback */
+.boggle-feedback {
+  min-height: 22px; font-size: 0.875rem; font-weight: 700;
+  text-align: center; transition: color 0.2s;
+}
+.boggle-feedback-success { color: #1a6e1a; }
+.boggle-feedback-error   { color: #c0392b; }
+
+/* Found words */
+.boggle-found-wrap { width: 100%; max-width: 320px; }
+.boggle-found-label {
+  font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+}
+.boggle-found { display: flex; flex-wrap: wrap; gap: 6px; }
+.boggle-word-chip {
+  font-size: 0.8rem; font-weight: 700;
+  background: var(--blue-light); color: var(--blue);
+  border-radius: 12px; padding: 3px 10px;
+}
+
+/* End round button */
+.boggle-end-wrap { text-align: center; margin-top: 8px; }
+
+/* Results overlay */
+.boggle-results { margin-top: 8px; }
+.boggle-result-reason { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; }
+.boggle-result-player {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: 1px solid var(--gray-bg);
+}
+.boggle-result-player.boggle-result-winner { font-weight: 800; }
+.boggle-result-name { font-weight: 700; font-size: 1rem; }
+.boggle-result-score { font-size: 1rem; font-weight: 800; color: var(--blue); }
+.boggle-result-words { display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 0 10px; }
+.boggle-result-word {
+  font-size: 0.78rem; font-weight: 700;
+  background: var(--blue-light); color: var(--blue);
+  border-radius: 10px; padding: 2px 8px;
+}
+.boggle-result-word.cancelled {
+  background: #f5f5f5; color: #aaa; text-decoration: line-through;
+}
+.boggle-result-word small { font-size: 0.7rem; opacity: 0.8; }
+
+/* dot colors for boggle seats */
+.dot-red    { background: #c0392b; }
+.dot-blue   { background: var(--blue); }
+.dot-green  { background: #1a6e1a; }
+.dot-purple { background: #7d3c98; }
+
 /* ===== Utility ===== */
 .hidden { display: none !important; }

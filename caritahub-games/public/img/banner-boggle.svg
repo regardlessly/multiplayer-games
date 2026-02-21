@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" width="480" height="220">
+  <!-- Background -->
+  <rect width="480" height="220" fill="#cfe2f3"/>
+
+  <!-- 4×4 tile grid, centred left -->
+  <g>
+    <!-- Row 0 -->
+    <rect x="30"  y="20" width="48" height="48" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <rect x="86"  y="20" width="48" height="48" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <rect x="142" y="20" width="48" height="48" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <rect x="198" y="20" width="48" height="48" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <!-- Row 1 — highlight WORD path -->
+    <rect x="30"  y="76" width="48" height="48" rx="7" fill="#1155cc"/>
+    <rect x="86"  y="76" width="48" height="48" rx="7" fill="#1155cc"/>
+    <rect x="142" y="76" width="48" height="48" rx="7" fill="#1155cc"/>
+    <rect x="198" y="76" width="48" height="48" rx="7" fill="#1155cc"/>
+    <!-- Row 2 -->
+    <rect x="30"  y="132" width="48" height="48" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <rect x="86"  y="132" width="48" height="48" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <rect x="142" y="132" width="48" height="48" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <rect x="198" y="132" width="48" height="48" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <!-- Row 3 -->
+    <rect x="30"  y="188" width="48" height="32" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <rect x="86"  y="188" width="48" height="32" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <rect x="142" y="188" width="48" height="32" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+    <rect x="198" y="188" width="48" height="32" rx="7" fill="white" stroke="#b0c8e8" stroke-width="1.5"/>
+  </g>
+
+  <!-- Letters -->
+  <g font-family="Helvetica, Arial, sans-serif" font-weight="bold" text-anchor="middle">
+    <!-- Row 0 -->
+    <text x="54"  y="53" font-size="24" fill="#333">S</text>
+    <text x="110" y="53" font-size="24" fill="#333">T</text>
+    <text x="166" y="53" font-size="24" fill="#333">A</text>
+    <text x="222" y="53" font-size="24" fill="#333">R</text>
+    <!-- Row 1 (highlighted — spells WORD) -->
+    <text x="54"  y="109" font-size="24" fill="white">W</text>
+    <text x="110" y="109" font-size="24" fill="white">O</text>
+    <text x="166" y="109" font-size="24" fill="white">R</text>
+    <text x="222" y="109" font-size="24" fill="white">D</text>
+    <!-- Row 2 -->
+    <text x="54"  y="165" font-size="24" fill="#333">L</text>
+    <text x="110" y="165" font-size="24" fill="#333">E</text>
+    <text x="166" y="165" font-size="24" fill="#333">N</text>
+    <text x="222" y="165" font-size="24" fill="#333">S</text>
+    <!-- Row 3 -->
+    <text x="54"  y="210" font-size="20" fill="#333">G</text>
+    <text x="110" y="210" font-size="20" fill="#333">I</text>
+    <text x="166" y="210" font-size="20" fill="#333">P</text>
+    <text x="222" y="210" font-size="20" fill="#333">H</text>
+  </g>
+
+  <!-- Small score dots on top-right of tiles -->
+  <g font-family="Helvetica, Arial, sans-serif" font-size="9" fill="#aaa" text-anchor="end">
+    <text x="73"  y="31">1</text>
+    <text x="129" y="31">1</text>
+    <text x="185" y="31">1</text>
+    <text x="241" y="31">1</text>
+  </g>
+
+  <!-- Right panel -->
+  <rect x="270" y="20" width="190" height="180" rx="10" fill="#1155cc" opacity="0.08"/>
+
+  <!-- Score display -->
+  <text x="365" y="65" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#555">SCORE</text>
+  <text x="365" y="100" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="44" font-weight="800" fill="#1155cc">+5</text>
+  <text x="365" y="122" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#777">7-letter word</text>
+
+  <!-- Timer badge -->
+  <rect x="292" y="138" width="146" height="30" rx="15" fill="#1155cc"/>
+  <text x="365" y="158" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="white">⏱  3 min round</text>
+
+  <!-- Word chip examples -->
+  <rect x="292" y="178" width="58" height="22" rx="11" fill="white" stroke="#1155cc" stroke-width="1.5"/>
+  <text x="321" y="194" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#1155cc">WORD</text>
+  <rect x="358" y="178" width="58" height="22" rx="11" fill="white" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="387" y="194" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="11" font-weight="700" fill="#c0392b">STAR</text>
+</svg>

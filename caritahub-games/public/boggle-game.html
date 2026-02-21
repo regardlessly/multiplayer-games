@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CaritaHub Boggle</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="header-inner">
+        <div class="header-nav"><a href="/" class="back-link">← All Games</a></div>
+        <h1>CaritaHub Boggle</h1>
+        <p class="subtitle" id="statusBar">Connecting…</p>
+      </div>
+    </header>
+
+    <main id="boggleApp">
+
+      <!-- Waiting overlay -->
+      <div id="waitingOverlay" class="overlay-card">
+        <p id="waitingMsg">Waiting for game to start…</p>
+      </div>
+
+      <!-- Game UI -->
+      <div id="gameUI" class="hidden">
+
+        <!-- Top bar: timer + scores -->
+        <div class="boggle-topbar">
+          <div class="boggle-timer-wrap">
+            <div class="boggle-timer-label">Time Left</div>
+            <div id="boggleTimer" class="boggle-timer">3:00</div>
+          </div>
+          <div id="bogglePlayers" class="boggle-players"></div>
+        </div>
+
+        <!-- Board + word entry -->
+        <div class="boggle-main">
+          <!-- 4×4 grid -->
+          <div id="boggleBoard" class="boggle-board"></div>
+
+          <!-- Word entry -->
+          <div class="boggle-entry">
+            <input id="wordInput" class="boggle-word-input" type="text"
+              placeholder="Type a word…" maxlength="16" autocomplete="off"
+              autocorrect="off" autocapitalize="characters" spellcheck="false" />
+            <button id="submitWordBtn" class="btn btn-primary">Submit</button>
+          </div>
+
+          <!-- Feedback -->
+          <div id="boggleFeedback" class="boggle-feedback" aria-live="polite"></div>
+
+          <!-- Found words list -->
+          <div class="boggle-found-wrap">
+            <p class="boggle-found-label">Your words</p>
+            <div id="boggleFound" class="boggle-found"></div>
+          </div>
+        </div>
+
+        <!-- Host-only end round button -->
+        <div id="endRoundWrap" class="boggle-end-wrap hidden">
+          <button id="endRoundBtn" class="btn btn-secondary">End Round Early</button>
+        </div>
+
+      </div>
+
+      <!-- Results overlay (shown after round ends) -->
+      <div id="resultsOverlay" class="overlay-card hidden">
+        <h2 id="resultsTitle">Round Over!</h2>
+        <div id="resultsBody" class="boggle-results"></div>
+        <a href="/" class="btn btn-primary" style="margin-top:16px">Back to Games</a>
+      </div>
+
+      <!-- Reconnect overlay -->
+      <div id="reconnectOverlay" class="overlay-card hidden">
+        <p>Connection lost. Reconnecting…</p>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/boggle-game.js"></script>
+</body>
+</html>
