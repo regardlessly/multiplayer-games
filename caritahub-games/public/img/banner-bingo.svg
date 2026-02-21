@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" width="480" height="220">
+  <!-- Background -->
+  <rect width="480" height="220" fill="#cfe2f3"/>
+
+  <!-- Bingo card background -->
+  <rect x="50" y="20" width="240" height="180" rx="10" fill="white" stroke="#1155cc" stroke-width="2"/>
+
+  <!-- Header row: B I N G O -->
+  <rect x="50" y="20" width="240" height="34" rx="10" fill="#1155cc"/>
+  <rect x="50" y="40" width="240" height="14" fill="#1155cc"/>
+
+  <g font-family="Helvetica, Arial, sans-serif" font-weight="bold" font-size="17" fill="white" text-anchor="middle">
+    <text x="74"  y="44">B</text>
+    <text x="122" y="44">I</text>
+    <text x="170" y="44">N</text>
+    <text x="218" y="44">G</text>
+    <text x="266" y="44">O</text>
+  </g>
+
+  <!-- Grid lines -->
+  <g stroke="#e0eaf5" stroke-width="1">
+    <!-- Vertical -->
+    <line x1="98"  y1="54" x2="98"  y2="200"/>
+    <line x1="146" y1="54" x2="146" y2="200"/>
+    <line x1="194" y1="54" x2="194" y2="200"/>
+    <line x1="242" y1="54" x2="242" y2="200"/>
+    <!-- Horizontal -->
+    <line x1="50" y1="83"  x2="290" y2="83"/>
+    <line x1="50" y1="112" x2="290" y2="112"/>
+    <line x1="50" y1="141" x2="290" y2="141"/>
+    <line x1="50" y1="170" x2="290" y2="170"/>
+  </g>
+
+  <!-- Numbers grid (sample card) -->
+  <g font-family="Helvetica, Arial, sans-serif" font-size="13" text-anchor="middle" fill="#333">
+    <!-- Row 1 -->
+    <text x="74"  y="74">7</text>
+    <text x="122" y="74">19</text>
+    <text x="170" y="74">38</text>
+    <text x="218" y="74">52</text>
+    <text x="266" y="74">63</text>
+    <!-- Row 2 -->
+    <text x="74"  y="103">3</text>
+    <text x="122" y="103">24</text>
+    <text x="170" y="103">41</text>
+    <text x="218" y="103">59</text>
+    <text x="266" y="103">70</text>
+    <!-- Row 3: FREE centre -->
+    <text x="74"  y="132">14</text>
+    <text x="122" y="132">29</text>
+    <!-- FREE cell -->
+    <rect x="148" y="113" width="44" height="28" rx="5" fill="#1155cc"/>
+    <text x="170" y="132" fill="white" font-size="10" font-weight="bold">FREE</text>
+    <text x="218" y="132">48</text>
+    <text x="266" y="132">74</text>
+    <!-- Row 4 -->
+    <text x="74"  y="161">11</text>
+    <text x="122" y="161">16</text>
+    <text x="170" y="161">33</text>
+    <text x="218" y="161">61</text>
+    <text x="266" y="161">67</text>
+    <!-- Row 5 -->
+    <text x="74"  y="190">2</text>
+    <text x="122" y="190">22</text>
+    <text x="170" y="190">44</text>
+    <text x="218" y="190">55</text>
+    <text x="266" y="190">72</text>
+  </g>
+
+  <!-- Marked cells (winning diagonal) -->
+  <g opacity="0.85">
+    <circle cx="74"  cy="68" r="15" fill="#c0392b" opacity="0.8"/>
+    <text x="74"  y="73" text-anchor="middle" font-family="Helvetica" font-size="13" font-weight="bold" fill="white">7</text>
+    <circle cx="122" cy="97" r="15" fill="#c0392b" opacity="0.8"/>
+    <text x="122" y="102" text-anchor="middle" font-family="Helvetica" font-size="13" font-weight="bold" fill="white">24</text>
+    <!-- FREE already marked (centre) -->
+    <circle cx="218" cy="126" r="15" fill="#c0392b" opacity="0.8"/>
+    <text x="218" y="131" text-anchor="middle" font-family="Helvetica" font-size="13" font-weight="bold" fill="white">48</text>
+    <circle cx="266" cy="184" r="15" fill="#c0392b" opacity="0.8"/>
+    <text x="266" y="189" text-anchor="middle" font-family="Helvetica" font-size="13" font-weight="bold" fill="white">72</text>
+  </g>
+
+  <!-- Right decorative panel -->
+  <rect x="310" y="20" width="140" height="180" rx="10" fill="#1155cc" opacity="0.08"/>
+
+  <!-- BINGO! burst -->
+  <text x="380" y="95" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="36" font-weight="bold" fill="#1155cc" opacity="0.85">BINGO!</text>
+
+  <!-- Number balls -->
+  <circle cx="340" cy="140" r="20" fill="#1155cc"/>
+  <text x="340" y="147" text-anchor="middle" font-family="Helvetica" font-size="14" font-weight="bold" fill="white">B7</text>
+
+  <circle cx="385" cy="155" r="20" fill="#c0392b"/>
+  <text x="385" y="162" text-anchor="middle" font-family="Helvetica" font-size="14" font-weight="bold" fill="white">N38</text>
+
+  <circle cx="428" cy="138" r="18" fill="#1a6e1a"/>
+  <text x="428" y="145" text-anchor="middle" font-family="Helvetica" font-size="12" font-weight="bold" fill="white">O72</text>
+</svg>

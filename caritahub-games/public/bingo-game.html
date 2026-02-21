@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CaritaHub Bingo</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="header-inner">
+        <div class="header-nav"><a href="/" class="back-link">← All Games</a></div>
+        <h1>CaritaHub Bingo</h1>
+        <p class="subtitle" id="statusBar">Connecting…</p>
+      </div>
+    </header>
+
+    <main id="bingoApp">
+
+      <!-- Waiting overlay -->
+      <div id="waitingOverlay" class="overlay-card">
+        <p id="waitingMsg">Waiting for game to start…</p>
+      </div>
+
+      <!-- Game UI (hidden until started) -->
+      <div id="gameUI" class="hidden">
+
+        <!-- Players row -->
+        <div id="bingoPlayers" class="bingo-players"></div>
+
+        <!-- Caller controls -->
+        <div id="callerPanel" class="bingo-caller-panel hidden">
+          <button id="callBtn" class="btn btn-primary btn-lg">🎱 Call Next Number</button>
+        </div>
+
+        <!-- Called numbers display -->
+        <div class="bingo-called-wrap">
+          <div class="bingo-last-number-wrap">
+            <div class="bingo-last-label">Last Called</div>
+            <div id="lastCalled" class="bingo-last-number">—</div>
+          </div>
+          <div id="calledBalls" class="bingo-balls"></div>
+        </div>
+
+        <!-- Bingo Card -->
+        <div class="bingo-card-wrap">
+          <div id="myBingoCard" class="bingo-card"></div>
+        </div>
+
+      </div>
+
+      <!-- Game over overlay -->
+      <div id="gameOverOverlay" class="overlay-card hidden">
+        <h2 id="gameOverTitle">🎉 BINGO!</h2>
+        <p id="gameOverMsg"></p>
+        <a href="/" class="btn btn-primary">Back to Games</a>
+      </div>
+
+      <!-- Reconnect overlay -->
+      <div id="reconnectOverlay" class="overlay-card hidden">
+        <p>Connection lost. Reconnecting…</p>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/bingo-game.js"></script>
+</body>
+</html>

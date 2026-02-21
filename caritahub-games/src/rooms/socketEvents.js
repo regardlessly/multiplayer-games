@@ -4,6 +4,7 @@ const roomManager = require('./roomManager');
 const { createGame: createXiangqiGame }    = require('../engine/xiangqi');
 const { createGame: createChessGame }      = require('../engine/chess');
 const { createGame: createChordaidiGame }  = require('../engine/chordaidi');
+const { createGame: createBingoGame }      = require('../engine/bingo');
 const analytics = require('../analytics/clickhouse');
 const leaderboard = require('../leaderboard');
 
@@ -86,6 +87,34 @@ function broadcastCDI(io, roomId, room, engine) {
   });
 }
 
+// ── Bingo helpers ────────────────────────────────────────────────────────────
+const BINGO_COLORS = ['caller', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'];
+
+function seatForBingoColor(color) { return BINGO_COLORS.indexOf(color); }
+
+function bingoPayload(roomId, room, engine) {
+  const gs = engine.state();
+  return {
+    gameType: 'bingo',
+    called:      gs.called,
+    lastCalled:  gs.lastCalled,
+    cards:       gs.cards,
+    marked:      gs.marked,
+    isGameOver:  gs.isGameOver,
+    winners:     gs.winners,
+    callerSeat:  gs.callerSeat,
+    playerCount: gs.playerCount,
+    players: room.players.map(p => ({
+      name: p.name, color: p.color, connected: p.socketId !== null,
+      seat: seatForBingoColor(p.color)
+    }))
+  };
+}
+
+function broadcastBingo(io, roomId, room, engine) {
+  io.to(roomId).emit('game_state', bingoPayload(roomId, room, engine));
+}
+
 module.exports = function wireEvents(io) {
   io.on('connection', socket => {
     console.log('connect', socket.id);
@@ -110,9 +139,10 @@ module.exports = function wireEvents(io) {
       let targetRoomId = roomId;
       if (!targetRoomId) {
         let colors;
-        if (gameType === 'chess')     colors = ['white', 'black'];
+        if (gameType === 'chess')          colors = ['white', 'black'];
         else if (gameType === 'chordaidi') colors = ['south', 'west', 'north', 'east'];
-        else                          colors = ['red', 'black'];
+        else if (gameType === 'bingo')     colors = BINGO_COLORS.slice(); // 8 seats
+        else                               colors = ['red', 'black'];
         targetRoomId = roomManager.createRoom({ colors });
         roomGameTypes.set(targetRoomId, gameType);
       }
@@ -141,6 +171,8 @@ module.exports = function wireEvents(io) {
         const gt = roomGameTypes.get(targetRoomId) || 'xiangqi';
         if (gt === 'chordaidi') {
           socket.emit('game_state', chordaidiPayload(targetRoomId, room, engine, socket.data.color));
+        } else if (gt === 'bingo') {
+          socket.emit('game_state', bingoPayload(targetRoomId, room, engine));
         } else {
           socket.emit('game_state', gameStatePayload(targetRoomId, room, engine));
         }
@@ -174,6 +206,7 @@ module.exports = function wireEvents(io) {
       let engine;
       if (gameType === 'chess')          engine = createChessGame();
       else if (gameType === 'chordaidi') engine = createChordaidiGame();
+      else if (gameType === 'bingo')     engine = createBingoGame(room.players.length);
       else                               engine = createXiangqiGame();
       engines.set(roomId, engine);
 
@@ -183,6 +216,8 @@ module.exports = function wireEvents(io) {
           if (!p.socketId) return;
           io.to(p.socketId).emit('game_started', chordaidiPayload(roomId, room, engine, p.color));
         });
+      } else if (gameType === 'bingo') {
+        io.to(roomId).emit('game_started', bingoPayload(roomId, room, engine));
       } else {
         const payload = gameStatePayload(roomId, room, engine);
         io.to(roomId).emit('game_started', payload);
@@ -271,6 +306,42 @@ module.exports = function wireEvents(io) {
       if (!result.ok) return socket.emit('invalid_move', { reason: result.reason });
 
       broadcastCDI(io, roomId, room, engine);
+    });
+
+    // ── Bingo: caller draws next number ─────────────────────────────
+    socket.on('bingo_call', () => {
+      const roomId = socket.data.roomId;
+      if (!roomId) return;
+      const engine = engines.get(roomId);
+      if (!engine) return socket.emit('error', { message: 'Game not started' });
+      const room = roomManager.getRoom(roomId);
+      if (!room) return;
+
+      const seat = seatForBingoColor(socket.data.color);
+      const result = engine.callNumber(seat);
+      if (!result.ok) return socket.emit('error', { message: result.reason });
+
+      broadcastBingo(io, roomId, room, engine);
+
+      if (engine.isGameOver()) {
+        const ws = engine.winners();
+        // Record wins for all winner seats
+        ws.forEach(w => {
+          const wp = room.players.find(p => seatForBingoColor(p.color) === w.seat);
+          if (wp) leaderboard.recordWin('bingo', wp.name);
+        });
+        const winNames = ws.map(w => {
+          const wp = room.players.find(p => seatForBingoColor(p.color) === w.seat);
+          return wp?.name || '?';
+        });
+        io.to(roomId).emit('game_over', {
+          winner: winNames.join(', '),
+          reason: `BINGO! ${winNames.join(' & ')} won!`
+        });
+        engines.delete(roomId);
+        roomGameTypes.delete(roomId);
+        analytics.logEvent('game_ended', roomId, socket.id, socket.data.playerName, { winner: winNames.join(', '), gameType: 'bingo' });
+      }
     });
 
     // ── Undo request ────────────────────────────────────────────────

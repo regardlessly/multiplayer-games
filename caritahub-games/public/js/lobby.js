@@ -36,6 +36,13 @@ const GAMES = {
     gamePage: '/chordaidi-game.html',
     maxPlayers: 4,
     hostColors: ['south']
+  },
+  bingo: {
+    title: 'CaritaHub Bingo',
+    subtitle: 'Bingo — 2 to 8 Players',
+    gamePage: '/bingo-game.html',
+    maxPlayers: 2,      // minimum to start; caller can begin with 2+
+    hostColors: ['caller']
   }
 };
 
@@ -152,7 +159,12 @@ socket.on('connect_error', () => {
 
 // ── Helpers ──────────────────────────────────────────────────────────
 function colorDisplayName(color) {
-  const map = { red: 'Red', white: 'White', black: 'Black', south: 'South', west: 'West', north: 'North', east: 'East' };
+  const map = {
+    red: 'Red', white: 'White', black: 'Black',
+    south: 'South', west: 'West', north: 'North', east: 'East',
+    caller: 'Caller', p2: 'Player 2', p3: 'Player 3', p4: 'Player 4',
+    p5: 'Player 5', p6: 'Player 6', p7: 'Player 7', p8: 'Player 8'
+  };
   return map[color] || color;
 }
 

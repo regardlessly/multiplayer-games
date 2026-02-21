@@ -588,5 +588,150 @@ input[type="text"]:focus { border-color: var(--blue); }
   white-space: nowrap;
 }
 
+/* ===== Bingo ===== */
+.bingo-players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  justify-content: center;
+}
+
+.bingo-player-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--white);
+  border: 2px solid #ccc;
+  border-radius: 20px;
+  padding: 4px 12px 4px 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+  transition: opacity 0.2s;
+}
+.bingo-player-chip.disconnected { opacity: 0.45; }
+.bingo-player-chip.bingo-winner { background: #fffbe6; border-color: #f0c040; }
+
+.bingo-chip-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.bingo-chip-name { color: var(--text); }
+.bingo-chip-badge {
+  font-size: 0.7rem;
+  background: #f0c040;
+  color: #333;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-weight: 800;
+}
+.bingo-chip-role {
+  font-size: 0.7rem;
+  background: var(--blue-light);
+  color: var(--blue);
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+
+/* Caller panel */
+.bingo-caller-panel { text-align: center; margin-bottom: 16px; }
+.btn-lg { font-size: 1.1rem; padding: 14px 32px; }
+
+/* Called numbers */
+.bingo-called-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.bingo-last-number-wrap {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 10px 16px;
+  min-width: 80px;
+}
+.bingo-last-label {
+  font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.bingo-last-number { font-size: 2rem; font-weight: 700; color: var(--blue); line-height: 1.1; }
+
+.bingo-balls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+}
+.bingo-ball {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+/* Bingo card */
+.bingo-card-wrap { display: flex; justify-content: center; }
+.bingo-card {
+  display: inline-block;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+}
+
+.bingo-row { display: flex; }
+
+.bingo-cell {
+  width: 52px; height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--white);
+  border: 1px solid var(--gray-bg);
+  box-sizing: border-box;
+  transition: background 0.18s;
+  user-select: none;
+}
+.bingo-header-cell {
+  color: white; font-size: 1.15rem; border-color: transparent;
+}
+.bingo-cell.bingo-free {
+  background: var(--blue); color: white;
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.02em;
+}
+.bingo-cell.bingo-marked { background: #c0392b; color: white; border-color: #a02020; }
+
+@media (max-width: 360px) {
+  .bingo-cell { width: 42px; height: 42px; font-size: 0.85rem; }
+  .bingo-last-number { font-size: 1.5rem; }
+}
+
+/* Dot colours for bingo seats (lobby player list) */
+.dot-caller { background: var(--blue); }
+.dot-p2     { background: #c0392b; }
+.dot-p3     { background: #1a6e1a; }
+.dot-p4     { background: #7d3c98; }
+.dot-p5     { background: #b7600a; }
+.dot-p6     { background: #0a7d7d; }
+.dot-p7     { background: #8b6914; }
+.dot-p8     { background: #555; }
+
 /* ===== Utility ===== */
 .hidden { display: none !important; }
