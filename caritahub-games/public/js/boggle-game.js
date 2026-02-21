@@ -16,17 +16,17 @@ const mySeat = BOGGLE_COLORS.indexOf(myColor);
 const isHost = myColor === 'red';
 
 // ── State ────────────────────────────────────────────────────────────────────
-let gameState    = null;
-let board        = [];   // flat 16-element letter array
-let gameActive   = false;
+let gameState     = null;
+let board         = [];   // flat 16-element letter array
+let gameActive    = false;
 let timerInterval = null;
 let localDeadline = 0;
 const foundWords  = []; // { word, score } confirmed by server
 
 // ── Tile selection state (drag mode) ─────────────────────────────────────────
-let selecting      = false;  // mouse/touch is held down
-let selectedPath   = [];     // ordered list of tile indices in current selection
-const tileEls      = [];     // tile DOM elements (filled in renderBoard)
+let selecting    = false;
+let selectedPath = [];
+const tileEls    = [];
 
 // ── DOM refs ─────────────────────────────────────────────────────────────────
 const statusBar        = document.getElementById('statusBar');
@@ -36,11 +36,13 @@ const gameUI           = document.getElementById('gameUI');
 const boggleBoardEl    = document.getElementById('boggleBoard');
 const bogglePlayers    = document.getElementById('bogglePlayers');
 const boggleTimer      = document.getElementById('boggleTimer');
+const wordDisplay      = document.getElementById('boggleWordDisplay');
 const wordInput        = document.getElementById('wordInput');
 const submitWordBtn    = document.getElementById('submitWordBtn');
+const clearWordBtn     = document.getElementById('clearWordBtn');
 const boggleFeedback   = document.getElementById('boggleFeedback');
 const boggleFound      = document.getElementById('boggleFound');
-const clearWordBtn     = document.getElementById('clearWordBtn');
+const boggleFoundScore = document.getElementById('boggleFoundScore');
 const endRoundWrap     = document.getElementById('endRoundWrap');
 const endRoundBtn      = document.getElementById('endRoundBtn');
 const resultsOverlay   = document.getElementById('resultsOverlay');
@@ -79,14 +81,14 @@ socket.on('boggle_accept', ({ word }) => {
   const pts = scoreWord(word);
   foundWords.push({ word, score: pts });
   renderFoundWords();
-  flashFeedback(`✓ ${word} (+${pts}pt)`, 'success');
+  flashFeedback(`✓ ${word}  +${pts} pt${pts !== 1 ? 's' : ''}`, 'success');
   clearSelection();
   wordInput.value = '';
+  syncDisplay();
 });
 
 socket.on('boggle_reject', ({ word, reason }) => {
   flashFeedback(`✗ ${word} — ${reason}`, 'error');
-  // Keep selection so player can see what was wrong; shake tiles
   shakeTiles(selectedPath);
 });
 
@@ -100,6 +102,33 @@ socket.on('game_over', ({ winner, reason }) => {
 
 socket.on('connect_error', () => reconnectOverlay.classList.remove('hidden'));
 
+// ── Word display helpers ──────────────────────────────────────────────────────
+function syncDisplay() {
+  const word = currentWord();
+  wordDisplay.innerHTML = '';
+  if (!word) {
+    const ph = document.createElement('span');
+    ph.className = 'boggle-word-display-placeholder';
+    ph.textContent = 'Type or drag tiles…';
+    wordDisplay.appendChild(ph);
+    wordDisplay.classList.remove('active', 'boggle-input-invalid');
+  } else {
+    wordDisplay.textContent = word;
+    wordDisplay.classList.add('active');
+    wordDisplay.classList.remove('boggle-input-invalid');
+  }
+}
+
+function markDisplayInvalid(invalid) {
+  if (invalid) {
+    wordDisplay.classList.add('boggle-input-invalid');
+    wordDisplay.classList.remove('active');
+  } else {
+    wordDisplay.classList.remove('boggle-input-invalid');
+    if (currentWord()) wordDisplay.classList.add('active');
+  }
+}
+
 // ── Submit ───────────────────────────────────────────────────────────────────
 function submitWord() {
   const w = currentWord();
@@ -108,16 +137,36 @@ function submitWord() {
 }
 
 function currentWord() {
-  // Priority: drag selection; fall back to typed input
   if (selectedPath.length > 0) return pathToWord(selectedPath);
   return wordInput.value.trim().toUpperCase();
 }
 
 submitWordBtn.addEventListener('click', submitWord);
-wordInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitWord(); });
-clearWordBtn.addEventListener('click', () => { clearSelection(); wordInput.value = ''; wordInput.focus(); });
 
-endRoundBtn.addEventListener('click', () => { endRoundBtn.disabled = true; socket.emit('boggle_end'); });
+// Tap on the word display to focus the hidden input
+wordDisplay.addEventListener('click', () => wordInput.focus());
+
+// Keyboard on hidden input
+wordInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); submitWord(); }
+});
+wordInput.addEventListener('input', () => {
+  if (selectedPath.length > 0) clearSelection();
+  syncDisplay();
+  validateInputPath();
+});
+
+clearWordBtn.addEventListener('click', () => {
+  clearSelection();
+  wordInput.value = '';
+  syncDisplay();
+  wordInput.focus();
+});
+
+endRoundBtn.addEventListener('click', () => {
+  endRoundBtn.disabled = true;
+  socket.emit('boggle_end');
+});
 
 // ── State application ─────────────────────────────────────────────────────────
 function applyState(state) {
@@ -143,8 +192,8 @@ function applyState(state) {
   renderBoard(board);
   renderPlayers(state.players, state.submissionCounts, state.scores);
 
-  wordInput.disabled = false;
   submitWordBtn.disabled = false;
+  syncDisplay();
   wordInput.focus();
 
   if (isHost) endRoundWrap.classList.remove('hidden');
@@ -161,32 +210,19 @@ function renderBoard(b) {
     tile.dataset.idx = i;
     tile.textContent = letter === 'Q' ? 'Qu' : letter;
 
-    // ── Mouse events ──────────────────────────────────────────────────
-    tile.addEventListener('mousedown', e => {
-      e.preventDefault();
-      startSelect(i);
-    });
-    tile.addEventListener('mouseenter', () => {
-      if (selecting) extendSelect(i);
-    });
+    // Mouse events
+    tile.addEventListener('mousedown', e => { e.preventDefault(); startSelect(i); });
+    tile.addEventListener('mouseenter', () => { if (selecting) extendSelect(i); });
 
-    // ── Touch events (mobile) ─────────────────────────────────────────
-    tile.addEventListener('touchstart', e => {
-      e.preventDefault();
-      startSelect(i);
-    }, { passive: false });
+    // Touch events (mobile)
+    tile.addEventListener('touchstart', e => { e.preventDefault(); startSelect(i); }, { passive: false });
 
     boggleBoardEl.appendChild(tile);
     tileEls.push(tile);
   });
 
   // End selection on mouseup anywhere
-  document.addEventListener('mouseup', endSelect, { once: false });
-  // Touch end
-  boggleBoardEl.addEventListener('touchend', e => {
-    e.preventDefault();
-    endSelect();
-  }, { passive: false });
+  document.addEventListener('mouseup', endSelect);
 
   // Touch move: find tile under finger
   boggleBoardEl.addEventListener('touchmove', e => {
@@ -197,68 +233,65 @@ function renderBoard(b) {
       extendSelect(parseInt(el.dataset.idx, 10));
     }
   }, { passive: false });
+
+  boggleBoardEl.addEventListener('touchend', e => {
+    e.preventDefault();
+    endSelect();
+  }, { passive: false });
 }
 
 // ── Selection logic ───────────────────────────────────────────────────────────
 function startSelect(idx) {
   if (!gameActive) return;
   clearSelection();
+  wordInput.value = '';
   selecting = true;
   selectedPath = [idx];
   updateTileVisuals();
-  syncInputFromPath();
+  syncDisplay();
 }
 
 function extendSelect(idx) {
   if (!selecting || !gameActive) return;
-  if (selectedPath.includes(idx)) return; // no revisiting
+  if (selectedPath.includes(idx)) return;
   const last = selectedPath[selectedPath.length - 1];
-  if (!adjacent(last, idx)) return;       // must be adjacent
+  if (!adjacent(last, idx)) return;
   selectedPath.push(idx);
   updateTileVisuals();
-  syncInputFromPath();
+  syncDisplay();
 }
 
 function endSelect() {
   if (!selecting) return;
   selecting = false;
-  // Don't auto-submit — let user confirm with button or Enter
+  // Don't auto-submit — let user press Submit or Enter
 }
 
 function clearSelection() {
   selecting = false;
   selectedPath = [];
   updateTileVisuals();
-  syncInputFromPath();
+  syncDisplay();
 }
 
 function pathToWord(path) {
   return path.map(i => board[i] === 'Q' ? 'QU' : board[i]).join('');
 }
 
-function syncInputFromPath() {
-  if (selectedPath.length > 0) {
-    wordInput.value = pathToWord(selectedPath);
-  }
-  // If no selection, leave input as-is (typed mode)
-  validateInputPath();
-}
-
 // ── Tile visuals ──────────────────────────────────────────────────────────────
 function updateTileVisuals() {
   tileEls.forEach((tile, i) => {
-    const inPath     = selectedPath.includes(i);
-    const pathPos    = selectedPath.indexOf(i);
-    const isLast     = pathPos === selectedPath.length - 1 && selectedPath.length > 0;
-    const canExtend  = selecting && !inPath && selectedPath.length > 0 &&
-                       adjacent(selectedPath[selectedPath.length - 1], i);
+    const inPath    = selectedPath.includes(i);
+    const pathPos   = selectedPath.indexOf(i);
+    const isLast    = pathPos === selectedPath.length - 1 && selectedPath.length > 0;
+    const canExtend = selecting && !inPath && selectedPath.length > 0 &&
+                      adjacent(selectedPath[selectedPath.length - 1], i);
 
     tile.classList.toggle('boggle-tile-selected', inPath && !isLast);
     tile.classList.toggle('boggle-tile-last',     isLast);
     tile.classList.toggle('boggle-tile-adjacent', canExtend);
     tile.classList.toggle('boggle-tile-used',     inPath);
 
-    // Show position number inside selected tiles
     if (inPath) {
       tile.dataset.pos = pathPos + 1;
     } else {
@@ -275,7 +308,6 @@ function shakeTiles(path) {
 }
 
 // ── Typed input → highlight path on board ────────────────────────────────────
-// Client-side DFS mirroring the server engine — finds path for typed word
 function adjacent(i, j) {
   const r1 = Math.floor(i / 4), c1 = i % 4;
   const r2 = Math.floor(j / 4), c2 = j % 4;
@@ -283,7 +315,6 @@ function adjacent(i, j) {
 }
 
 function findPath(word) {
-  // Returns ordered array of tile indices, or null if not formable
   function dfs(w, pos, used, path) {
     if (w.length === 0) return path;
     for (let next = 0; next < 16; next++) {
@@ -299,7 +330,6 @@ function findPath(word) {
     }
     return null;
   }
-  // Try each start tile
   for (let start = 0; start < 16; start++) {
     const tile = board[start] === 'Q' ? 'QU' : board[start];
     if (word.startsWith(tile)) {
@@ -315,49 +345,36 @@ function findPath(word) {
 let validateTimer = null;
 function validateInputPath() {
   if (validateTimer) clearTimeout(validateTimer);
-  validateTimer = setTimeout(_doValidate, 80); // slight debounce
+  validateTimer = setTimeout(_doValidate, 80);
 }
 
 function _doValidate() {
   if (!board.length) return;
   const w = wordInput.value.trim().toUpperCase();
 
-  // If we have a drag selection, don't interfere with it
+  // Drag selection active — don't interfere
   if (selectedPath.length > 0) {
-    tileEls.forEach(t => {
-      t.classList.remove('boggle-tile-typed');
-      t.classList.remove('boggle-tile-invalid');
-    });
+    tileEls.forEach(t => t.classList.remove('boggle-tile-typed', 'boggle-tile-invalid'));
+    markDisplayInvalid(false);
     return;
   }
 
-  // Clear typed highlights
-  tileEls.forEach(t => {
-    t.classList.remove('boggle-tile-typed', 'boggle-tile-last', 'boggle-tile-invalid');
-  });
+  tileEls.forEach(t => t.classList.remove('boggle-tile-typed', 'boggle-tile-last', 'boggle-tile-invalid'));
 
-  if (!w) return;
+  if (!w) { markDisplayInvalid(false); return; }
 
   const path = findPath(w);
   if (path) {
     path.forEach((idx, pos) => {
       tileEls[idx].classList.add(pos === path.length - 1 ? 'boggle-tile-last' : 'boggle-tile-typed');
     });
-    wordInput.classList.remove('boggle-input-invalid');
+    markDisplayInvalid(false);
   } else {
-    wordInput.classList.add('boggle-input-invalid');
-    // Flash tiles to show word can't be formed
+    markDisplayInvalid(true);
     tileEls.forEach(t => t.classList.add('boggle-tile-invalid'));
-    setTimeout(() => tileEls.forEach(t => t.classList.remove('boggle-tile-invalid')), 300);
+    setTimeout(() => tileEls.forEach(t => t.classList.remove('boggle-tile-invalid')), 280);
   }
 }
-
-// Wire typed validation
-wordInput.addEventListener('input', () => {
-  // Typing clears drag selection
-  if (selectedPath.length > 0) clearSelection();
-  validateInputPath();
-});
 
 // ── Players ───────────────────────────────────────────────────────────────────
 function renderPlayers(players, counts, scores) {
@@ -371,7 +388,7 @@ function renderPlayers(players, counts, scores) {
     chip.innerHTML = `
       <span class="boggle-chip-dot" style="background:${COLOR_HEX[p.color]}"></span>
       <span class="boggle-chip-name">${escHtml(p.name)}</span>
-      <span class="boggle-chip-count">${score !== '' ? score + 'pt' : wordCount + ' words'}</span>
+      <span class="boggle-chip-count">${score !== '' ? score + 'pt' : wordCount + ' ✓'}</span>
     `;
     bogglePlayers.appendChild(chip);
   });
@@ -381,6 +398,9 @@ function renderPlayers(players, counts, scores) {
 function renderFoundWords() {
   boggleFound.innerHTML = '';
   const sorted = foundWords.slice().sort((a, b) => b.score - a.score || a.word.localeCompare(b.word));
+  const total = sorted.reduce((s, fw) => s + fw.score, 0);
+  if (boggleFoundScore) boggleFoundScore.textContent = `${total} pt${total !== 1 ? 's' : ''}`;
+
   sorted.forEach(({ word, score }) => {
     const chip = document.createElement('span');
     chip.className = 'boggle-word-chip';
@@ -393,7 +413,6 @@ function renderFoundWords() {
 function showResults(reason) {
   if (!gameState || !gameState.scores) return;
   stopTimer();
-  wordInput.disabled = true;
   submitWordBtn.disabled = true;
   endRoundWrap.classList.add('hidden');
 
@@ -402,7 +421,7 @@ function showResults(reason) {
   const players = gameState.players;
 
   const best = Math.max(...scores);
-  const winnerIdx = scores.indexOf(best);
+  const winnerIdx  = scores.indexOf(best);
   const winnerName = players[winnerIdx]?.name || '?';
 
   resultsTitle.textContent = `🎉 ${winnerName} wins!`;
@@ -469,7 +488,7 @@ function flashFeedback(msg, type) {
   feedbackTimer = setTimeout(() => {
     boggleFeedback.textContent = '';
     boggleFeedback.className = 'boggle-feedback';
-  }, 2500);
+  }, 2800);
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

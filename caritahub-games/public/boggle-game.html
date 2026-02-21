@@ -26,7 +26,7 @@
       <!-- Game UI -->
       <div id="gameUI" class="hidden">
 
-        <!-- Top bar: timer + scores -->
+        <!-- Top bar: timer + player chips -->
         <div class="boggle-topbar">
           <div class="boggle-timer-wrap">
             <div class="boggle-timer-label">Time Left</div>
@@ -35,42 +35,63 @@
           <div id="bogglePlayers" class="boggle-players"></div>
         </div>
 
-        <!-- Board + word entry -->
-        <div class="boggle-main">
-          <!-- 4×4 grid -->
+        <!-- 4×4 board -->
+        <div class="boggle-board-wrap">
           <div id="boggleBoard" class="boggle-board"></div>
+        </div>
 
-          <!-- Word entry -->
-          <div class="boggle-entry">
-            <input id="wordInput" class="boggle-word-input" type="text"
-              placeholder="Type or drag tiles…" maxlength="16" autocomplete="off"
-              autocorrect="off" autocapitalize="characters" spellcheck="false" />
-            <button id="clearWordBtn" class="btn btn-secondary boggle-clear-btn" title="Clear">✕</button>
-            <button id="submitWordBtn" class="btn btn-primary">Submit</button>
+        <!-- ── Below-board panel ── -->
+        <div class="boggle-panel">
+
+          <!-- Current word display -->
+          <div class="boggle-word-display-wrap">
+            <div id="boggleWordDisplay" class="boggle-word-display" aria-live="polite">
+              <span class="boggle-word-display-placeholder">Type or drag tiles…</span>
+            </div>
           </div>
 
-          <!-- Feedback -->
-          <div id="boggleFeedback" class="boggle-feedback" aria-live="polite"></div>
+          <!-- Hidden input (captures keyboard on mobile too) -->
+          <input id="wordInput" class="boggle-word-input-hidden" type="text"
+            maxlength="16" autocomplete="off" autocorrect="off"
+            autocapitalize="characters" spellcheck="false"
+            inputmode="text" aria-label="Word input" />
 
-          <!-- Found words list -->
-          <div class="boggle-found-wrap">
-            <p class="boggle-found-label">Your words</p>
+          <!-- Action buttons -->
+          <div class="boggle-actions">
+            <button id="clearWordBtn" class="boggle-btn-clear" title="Clear">
+              <span>✕</span> Clear
+            </button>
+            <button id="submitWordBtn" class="boggle-btn-submit" title="Submit word (Enter)">
+              Submit ↵
+            </button>
+          </div>
+
+          <!-- Feedback toast -->
+          <div id="boggleFeedback" class="boggle-feedback" aria-live="polite" role="status"></div>
+
+          <!-- Found words -->
+          <div class="boggle-found-section">
+            <div class="boggle-found-header">
+              <span class="boggle-found-label">Your words</span>
+              <span id="boggleFoundScore" class="boggle-found-score">0 pts</span>
+            </div>
             <div id="boggleFound" class="boggle-found"></div>
           </div>
-        </div>
 
-        <!-- Host-only end round button -->
+        </div><!-- /boggle-panel -->
+
+        <!-- Host end-round button -->
         <div id="endRoundWrap" class="boggle-end-wrap hidden">
-          <button id="endRoundBtn" class="btn btn-secondary">End Round Early</button>
+          <button id="endRoundBtn" class="boggle-btn-end">⏹ End Round Early</button>
         </div>
 
-      </div>
+      </div><!-- /gameUI -->
 
-      <!-- Results overlay (shown after round ends) -->
+      <!-- Results overlay -->
       <div id="resultsOverlay" class="overlay-card hidden">
         <h2 id="resultsTitle">Round Over!</h2>
         <div id="resultsBody" class="boggle-results"></div>
-        <a href="/" class="btn btn-primary" style="margin-top:16px">Back to Games</a>
+        <a href="/" class="btn btn-primary" style="margin-top:20px">Back to Games</a>
       </div>
 
       <!-- Reconnect overlay -->
