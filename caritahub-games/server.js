@@ -11,7 +11,10 @@ const httpServer = http.createServer(app);
 const corsOrigin = process.env.CORS_ORIGIN || '*';
 
 const io = new Server(httpServer, {
-  cors: { origin: corsOrigin, methods: ['GET', 'POST'] }
+  cors: { origin: corsOrigin, methods: ['GET', 'POST'] },
+  // Fly.io: ensure WebSocket upgrades work behind the proxy
+  transports: ['websocket', 'polling'],
+  allowEIO3: true
 });
 
 // Rate limit static/API routes (generous; join_xiangqi is rate-limited in socket events)

@@ -147,7 +147,7 @@ class ChessBoard {
       const { x, y } = this._toCanvas(r, c);
       const cx = x + cellSize / 2;
       const cy = y + cellSize / 2;
-      ctx.fillStyle = 'rgba(0,0,0,0.20)';
+      ctx.fillStyle = 'rgba(17, 85, 204, 0.22)';
       ctx.beginPath();
       if (this.board[r][c]) {
         // Capture: hollow ring

@@ -91,7 +91,7 @@ socket.on('connect', () => {
   reconnectOverlay.style.display = 'none';
   // Always use reconnect:true on the game page — the player already claimed their seat
   // in the lobby. This bypasses rate limiting and allows seat reclaim by name.
-  socket.emit('join_xiangqi', { roomId, playerName: myName, reconnect: true });
+  socket.emit('join_game', { roomId, playerName: myName, reconnect: true, gameType: 'xiangqi' });
   hasConnectedBefore = true;
 });
 

@@ -181,7 +181,7 @@ class XiangqiBoard {
     // Legal move dots
     for (const [r, c] of this.legalDots) {
       const { x, y } = this._toCanvas(r, c);
-      ctx.fillStyle = 'rgba(0, 150, 80, 0.65)';
+      ctx.fillStyle = 'rgba(17, 85, 204, 0.65)';
       ctx.beginPath();
       ctx.arc(x, y, pieceR * 0.38, 0, Math.PI * 2);
       ctx.fill();
@@ -199,7 +199,7 @@ class XiangqiBoard {
 
         // Selection ring
         if (isSelected) {
-          ctx.strokeStyle = '#ffd700';
+          ctx.strokeStyle = '#1155cc';
           ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.arc(x, y, pieceR + 4, 0, Math.PI * 2);
